@@ -1,13 +1,15 @@
-import { Button } from '@/components/base/shadcn/button';
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/base/shadcn/card';
 
+import CaseRail, { type Gate } from './rail/case-rail';
+import AnalysisSection from './sections/analysis-section';
+import { type FormState, INITIAL_STATE } from './form-state';
 import { useCaseCreationT } from './i18n';
 
-const REQUIRED_TOTAL = 7;
+type SectionKey = 'analysis' | 'patient' | 'patient_prenatal' | 'clinical_signs' | 'other_clinical' | 'family';
 
-type SectionKey = 'analysis' | 'patient' | 'clinical_signs' | 'other_clinical' | 'family';
-
-function SectionCard({ index, titleKey }: { index: number; titleKey: SectionKey }) {
+function SectionCard({ index, titleKey, children }: { index: number; titleKey: SectionKey; children?: ReactNode }) {
   const { t } = useCaseCreationT();
   return (
     <Card>
@@ -17,15 +19,45 @@ function SectionCard({ index, titleKey }: { index: number; titleKey: SectionKey 
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-muted-foreground text-sm">{t('section.placeholder')}</p>
+        {children ?? <p className="text-muted-foreground text-sm">{t('section.placeholder')}</p>}
       </CardContent>
     </Card>
   );
 }
 
-/** Shell only: the five sections and the rail, laid out. Each section is built in its own step. */
+/**
+ * The gate. The rail's count IS its rows: each required rail row is one item, satisfied or not.
+ * 7 items, 9 in a prenatal case. Items for sections not built yet stay unmet.
+ */
+function computeGate(s: FormState): Gate {
+  const items = [
+    s.analysisCode !== '', // Analyse
+    false, // Identifiant (§2)
+    false, // Établissement du patient (§2)
+    false, // Sexe (§2)
+    false, // Date de naissance (§2)
+    false, // Nom — first AND last, one item (§2)
+    false, // Signes cliniques — at least one OBSERVED phenotype (§3)
+  ];
+  if (s.prenatal) items.push(false /* Sexe fœtal */, false /* Âge gestationnel */);
+  return { done: items.filter(Boolean).length, total: items.length };
+}
+
 function CaseCreationPage() {
   const { t } = useCaseCreationT();
+  const [state, setState] = useState<FormState>(INITIAL_STATE);
+  const update = useCallback((fn: (s: FormState) => FormState) => setState(fn), []);
+  const gate = computeGate(state);
+
+  // Rail feedback: one message at a time, gone after 2.4 s.
+  const [flash, setFlash] = useState('');
+  const flashTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const flashNote = (msg: string) => {
+    setFlash(msg);
+    clearTimeout(flashTimer.current);
+    flashTimer.current = setTimeout(() => setFlash(''), 2400);
+  };
+  useEffect(() => () => clearTimeout(flashTimer.current), []);
 
   return (
     <div className="bg-background min-h-screen">
@@ -37,8 +69,11 @@ function CaseCreationPage() {
 
         <div className="grid grid-cols-[minmax(0,1fr)_340px] items-start gap-6">
           <div className="flex flex-col gap-6">
-            <SectionCard index={1} titleKey="analysis" />
-            <SectionCard index={2} titleKey="patient" />
+            <SectionCard index={1} titleKey="analysis">
+              <AnalysisSection state={state} update={update} />
+            </SectionCard>
+            {/* The fetus is the one sequenced; §2 holds the mother's identity in a prenatal case. */}
+            <SectionCard index={2} titleKey={state.prenatal ? 'patient_prenatal' : 'patient'} />
             <SectionCard index={3} titleKey="clinical_signs" />
             <SectionCard index={4} titleKey="other_clinical" />
             <h2 className="text-muted-foreground mt-2 text-sm font-semibold uppercase tracking-wide">
@@ -47,16 +82,13 @@ function CaseCreationPage() {
             <SectionCard index={5} titleKey="family" />
           </div>
 
-          <Card className="sticky top-6">
-            <CardContent className="flex flex-col gap-3">
-              <Button disabled>{t('rail.create')}</Button>
-              <Button variant="outline">{t('rail.save_draft')}</Button>
-              <p className="text-muted-foreground text-xs">
-                {t('rail.required_count', { done: 0, total: REQUIRED_TOTAL })}
-              </p>
-              <h3 className="mt-[22px] text-sm font-semibold">{t('rail.summary')}</h3>
-            </CardContent>
-          </Card>
+          <CaseRail
+            state={state}
+            gate={gate}
+            flash={flash}
+            onCreate={() => flashNote(t(gate.done === gate.total ? 'flash.created' : 'flash.incomplete'))}
+            onDraft={() => flashNote(t('flash.draft'))}
+          />
         </div>
       </div>
     </div>

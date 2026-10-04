@@ -37,13 +37,13 @@ so there is no separate checkbox); then the prescriber, alone on its line and **
 label** — just ☑ « Je suis médecin prescripteur ou responsable », with « Qui demande cette
 analyse » + an input appearing only when unticked.
 
-**2 · Patient (cas index)** — Identifiant\* | Établissement du patient\*, the lookup status line
+**2 · Patient (proband)** — Identifiant\* | Établissement du patient\*, the lookup status line
 spanning the row, RAMQ | **DDN\* · Sexe\*** sharing one cell, Prénom\* | Nom\*. The DDN · Sexe pair
 fits one column only because both halves shrink: the label to « DDN » (§2 only — §5 and the patient
 dialog still spell out « Date de naissance »), and Sexe to initials with the full word as tooltip.
 The rail shows the full word, « Féminin » not « F ».
 
-In **prenatal** mode the title becomes « Patient (cas index, mère) » and Sexe prefills Féminin. The
+In **prenatal** mode the title becomes « Patient (proband, mère) » and Sexe prefills Féminin. The
 fetus is the one sequenced; this section holds the *mother's* identity only because a fetus has no
 identifying information of its own. A prenatal block — **« Informations fœtales »** — then opens at
 the end of the section: Sexe (fœtus), then Âge gestationnel as DDM / DPA / Fœtus décédé, **the date
@@ -78,15 +78,15 @@ rule: prenatal **and** Mother **and** in the analysis.
 **Rail** — the two actions **lead the card**: Créer le cas · Enregistrer le brouillon · progress
 bar · `x sur 7 champs requis`, then 22 px, then « Résumé du cas »:
 
-> Analyse (+ germline/somatic badge, + a composition badge once not solo) · Catégorie · Priorité ·
-> ID cas index · Établissement du patient · Sexe · Date de naissance · **Nom** · **Phénotypes** ·
+> Analyse (+ germline/somatic badge, + a composition badge once not solo) · Pré/Postnatal · Priorité ·
+> ID proband · Établissement du patient · Sexe · Date de naissance · **Nom** · **Phénotypes** ·
 > [« Informations fœtales »: Sexe fœtal · Âge gestationnel] · « Ajouts facultatifs »: Indication
 > principale · Consanguinité · Ethnicité(s) · Note clinique · Famille · **pedigree**
 
 - « Phénotypes » sits **above** the fetal block even though §3 follows §2, because that block is a
   *captioned* group and a captioned group must end at the next caption — below it, the proband's
   count read as a fetal fact.
-- In prenatal mode « ID cas index » → « ID mère » and « Sexe » → « Sexe (mère) ». DDN and Nom are
+- In prenatal mode « ID proband » → « ID mère » and « Sexe » → « Sexe (mère) ». DDN and Nom are
   hers too but are **not** qualified — three parentheses in a row would be noise.
 - The gestational row carries what is stored **and** what is derived: « DDM 2026-04-02 · 24 sem. ».
 - Wireframe geometry: shell 1200 px, rail 340 px, sticky 24 px from the top. With a pedigree drawn
@@ -104,7 +104,7 @@ bar · `x sur 7 champs requis`, then 22 px, then « Résumé du cas »:
 - **Every dropdown is clearable** back to its placeholder while filled — **except a required one**,
   which keeps no clear.
 - **« Inconnu » is an answer, so the rail inks it.** A value goes dark as soon as the user has
-  answered, Unknown included; only the em-dash stays muted. Catégorie and Priorité ink
+  answered, Unknown included; only the em-dash stays muted. Pré/Postnatal and Priorité ink
   unconditionally — they ship with defaults.
 - **The indication field is a typeahead, not a select.** Free text is never a value: on blur the
   real label comes back.
@@ -245,6 +245,29 @@ bar · `x sur 7 champs requis`, then 22 px, then « Résumé du cas »:
   it. Every other segmented control is required, so a general toggle would let a stray click
   un-answer one.
 - **Statut vital left the form** (team decision). At case creation the value is always Alive.
+
+## Hi-fi decisions
+
+Where the design system already had an answer, the prototype uses it over the wireframe's drawing.
+
+- **Case type uses the DS badge** (`AnalysisTypeCodeBadge`): icon-only, name in the tooltip, as in
+  the case list. The wireframe drew a coloured text badge. The DS also has a `germline_family`
+  variant ("Family germline"), so it already tells solo from family. **To decide in review**:
+  switch to `germline_family` once a relative is sequenced, and whether the composition badge
+  (« Trio ») still earns its place beside it. For now: `germline` / `somatic`, composition badge
+  still planned for §5.
+- **Priority uses the DS `PriorityIndicator`** in the select and the rail, with its own FR/EN
+  labels and colours. Codes are `routine` · `urgent` · `stat` (the DS also knows `asap`; the form
+  doesn't offer it).
+- **Create is never `disabled`.** It looks unavailable until the gate is met, and a click says
+  what is missing, as in the wireframe. A disabled button can't explain itself. Logged as a DS
+  question.
+- **The STAT prefill flashes** with a brief focus ring on the Priority control. The ring only shows
+  when the form changed the value, never when the user picked it.
+- **Copy follows the app's vocabulary** (2026-10-04): « Proband » replaces « cas index », and the
+  rail's « Catégorie » row is « Pré/Postnatal », as in the case list. Kept on purpose:
+  « Ethnicité(s) » (several values), « Note clinique » (sentence case), EN "Date of birth".
+- **The study is not in the rail**, as in the wireframe. It is optional and not part of the gate.
 
 ## Backend snapshot (upstream/main, 2026-09-29)
 
