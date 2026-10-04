@@ -1,5 +1,9 @@
+import type { OnsetCode } from './mock/hpo';
 import type { PriorityCode } from './mock/options';
 import type { PatientRecord, SexCode } from './mock/patients';
+
+/** An observed phenotype: the case's Term, `{ id, onset_code }`. */
+export type ObservedTerm = { id: string; onset: OnsetCode };
 
 /** Gestational basis — built with §2's prenatal block. `demise` is « Fœtus décédé ». */
 export type GestBasis = 'lmp' | 'edd' | 'demise';
@@ -39,6 +43,10 @@ export type FormState = {
    */
   priorityBeforePrenatal: PriorityCode | null;
   priorityUserSet: boolean;
+  // §3
+  observed: ObservedTerm[];
+  /** Not-observed terms carry no onset: they were looked for and are absent. */
+  notObserved: string[];
 };
 
 export const INITIAL_STATE: FormState = {
@@ -64,6 +72,8 @@ export const INITIAL_STATE: FormState = {
   eddDate: '',
   priorityBeforePrenatal: null,
   priorityUserSet: false,
+  observed: [],
+  notObserved: [],
 };
 
 /**
@@ -160,4 +170,30 @@ export function setPriorityByUser(s: FormState, priority: PriorityCode): FormSta
 /** Ticking « Je suis médecin prescripteur » again clears the typed name (nothing hidden reaches the case). */
 export function setPrescriberIsMe(s: FormState, me: boolean): FormState {
   return { ...s, prescriberIsMe: me, prescriberName: me ? '' : s.prescriberName };
+}
+
+/**
+ * A term is observed or not observed, never both, so a term already in the other list can't be
+ * ticked here. A new observed term starts at « Inconnu »: an onset is asked for, never required.
+ */
+export function toggleObserved(s: FormState, id: string): FormState {
+  if (s.observed.some(o => o.id === id)) return { ...s, observed: s.observed.filter(o => o.id !== id) };
+  if (s.notObserved.includes(id)) return s;
+  return { ...s, observed: [...s.observed, { id, onset: 'unknown' }] };
+}
+
+export function removeNotObserved(s: FormState, id: string): FormState {
+  return { ...s, notObserved: s.notObserved.filter(x => x !== id) };
+}
+
+export function setOnset(s: FormState, id: string, onset: OnsetCode): FormState {
+  return { ...s, observed: s.observed.map(o => (o.id === id ? { ...o, onset } : o)) };
+}
+
+/** The HPO browser's « Appliquer »: its ticks replace the list it was opened for. Kept terms keep their onset. */
+export function applyBrowser(s: FormState, target: 'observed' | 'notObserved', picked: string[]): FormState {
+  if (target === 'notObserved') return { ...s, notObserved: picked };
+  const kept = s.observed.filter(o => picked.includes(o.id));
+  const added = picked.filter(id => !kept.some(o => o.id === id)).map(id => ({ id, onset: 'unknown' as const }));
+  return { ...s, observed: [...kept, ...added] };
 }

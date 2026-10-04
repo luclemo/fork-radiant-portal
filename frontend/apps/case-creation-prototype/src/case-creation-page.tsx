@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/base/shad
 import { lookupKey } from './mock/patients';
 import CaseRail, { type Gate } from './rail/case-rail';
 import AnalysisSection from './sections/analysis-section';
+import ClinicalSignsSection from './sections/clinical-signs-section';
 import PatientSection from './sections/patient-section';
 import { type FormState, INITIAL_STATE } from './form-state';
 import { gestAnswered, gestState, todayStr } from './gestational';
@@ -43,7 +44,8 @@ function computeGate(s: FormState): Gate {
     s.sex !== '', // Sexe
     s.dob !== '' && s.dob <= todayStr(), // Date de naissance — a future one is marked, not counted
     s.firstName.trim() !== '' && s.lastName.trim() !== '', // Nom — first AND last, one item
-    false, // Signes cliniques — at least one OBSERVED phenotype (§3)
+    // Signes cliniques — at least one OBSERVED phenotype; a not-observed term is an aside.
+    s.observed.length > 0,
   ];
   if (s.prenatal) {
     items.push(s.fetalSex !== '', gestAnswered(gestState(s.gestBasis, s.lmpDate, s.eddDate)));
@@ -84,7 +86,9 @@ function CaseCreationPage() {
             <SectionCard index={2} titleKey={state.prenatal ? 'patient_prenatal' : 'patient'}>
               <PatientSection state={state} update={update} />
             </SectionCard>
-            <SectionCard index={3} titleKey="clinical_signs" />
+            <SectionCard index={3} titleKey="clinical_signs">
+              <ClinicalSignsSection state={state} update={update} />
+            </SectionCard>
             <SectionCard index={4} titleKey="other_clinical" />
             <h2 className="text-muted-foreground mt-2 text-sm font-semibold uppercase tracking-wide">
               {t('section.optional_sections')}

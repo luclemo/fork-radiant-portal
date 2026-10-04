@@ -123,8 +123,11 @@ function CaseRail({ state, gate, flash, onCreate, onDraft }: Props) {
         <Row label={t('rail.name')} done={!!state.firstName.trim() && !!state.lastName.trim()}>
           {name || undefined}
         </Row>
-        {/* Above the fetal block: a captioned group must end at the next caption. */}
-        <Row label={t('rail.phenotypes')}>{t('rail.terms', { count: 0 })}</Row>
+        {/* Above the fetal block: a captioned group must end at the next caption. The text counts
+            every term the case records; the ink answers the requirement — an OBSERVED one. */}
+        <Row label={t('rail.phenotypes')} done={state.observed.length > 0}>
+          {t('rail.terms', { count: state.observed.length + state.notObserved.length })}
+        </Row>
 
         {state.prenatal && (
           <>

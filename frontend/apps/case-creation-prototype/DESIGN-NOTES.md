@@ -283,6 +283,24 @@ Where the design system already had an answer, the prototype uses it over the wi
 - **The date of birth is capped at today** (new in the hi-fi). Future days are disabled in the
   calendar. A typed future date is marked with a message, its rail row stays muted and it doesn't
   count toward the gate, the same treatment as DDM / DPA out of range. Those bounds are unchanged.
+- **§3 rows are the DS `Checkbox` + term + HP id, and a DS `Select` (xs, 28 px) for the onset**
+  (2026-10-04). A new observed term starts at « Inconnu ». The ellipsized name's full term is a DS
+  `Tooltip`, not a browser title.
+- **A search match is shown in bold**, as the app's own term autocomplete does (the backend wraps
+  it in `<strong>`). The wireframe used a grey tint. Same in the HPO browser.
+- **Not-observed picks are the DS closable `Badge`, `neutral`, default size** (Lucas, 2026-10-04),
+  6 px apart. Not `red`, the wireframe's tint: in this app red is the pathogenic / oncogenic
+  badge, and these terms were looked for and found absent. The heading already says « non
+  observés ».
+- **The HPO browser says which list it fills** (new in the hi-fi): one browser serves both lists,
+  so its subtitle reads « Les termes cochés seront les phénotypes observés » (or « non observés »).
+  The wireframe used the same title for both and nothing else told them apart.
+- **The HPO browser is a DS `Dialog`** with a draft: ticks only reach the form on « Appliquer »;
+  Esc, ✕, the backdrop and « Annuler » discard them. A term in the other list shows but can't be
+  ticked. « Annuler » / « Appliquer » are the app's own words.
+- **The whole HPO ontology ships with the prototype** (`src/mock/hpo-terms.txt`, 18,690 terms,
+  1.5 MB) so search and the tree behave like the real thing. The real form would call
+  `hpoTermAutoComplete`; the tree has no endpoint yet.
 
 ## Backend snapshot (upstream/main, 2026-09-29)
 
