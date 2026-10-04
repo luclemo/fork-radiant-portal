@@ -2,9 +2,12 @@ import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/base/shadcn/card';
 
+import { lookupKey } from './mock/patients';
 import CaseRail, { type Gate } from './rail/case-rail';
 import AnalysisSection from './sections/analysis-section';
+import PatientSection from './sections/patient-section';
 import { type FormState, INITIAL_STATE } from './form-state';
+import { gestAnswered, gestState, todayStr } from './gestational';
 import { useCaseCreationT } from './i18n';
 
 type SectionKey = 'analysis' | 'patient' | 'patient_prenatal' | 'clinical_signs' | 'other_clinical' | 'family';
@@ -27,19 +30,24 @@ function SectionCard({ index, titleKey, children }: { index: number; titleKey: S
 
 /**
  * The gate. The rail's count IS its rows: each required rail row is one item, satisfied or not.
- * 7 items, 9 in a prenatal case. Items for sections not built yet stay unmet.
+ * 7 items, 9 in a prenatal case. Items for sections not built yet stay unmet. Rail rows and gate
+ * read the same values (and the same gestational computation), so they cannot drift.
  */
 function computeGate(s: FormState): Gate {
+  const key = lookupKey(s.patientOrg, s.patientId);
   const items = [
     s.analysisCode !== '', // Analyse
-    false, // Identifiant (§2)
-    false, // Établissement du patient (§2)
-    false, // Sexe (§2)
-    false, // Date de naissance (§2)
-    false, // Nom — first AND last, one item (§2)
+    // A rejected match means the identifier is wrong: it blocks Create, never Save draft.
+    s.patientId.trim() !== '' && !(key && s.lookupDecisions[key] === 'rejected'), // Identifiant
+    s.patientOrg !== '', // Établissement du patient
+    s.sex !== '', // Sexe
+    s.dob !== '' && s.dob <= todayStr(), // Date de naissance — a future one is marked, not counted
+    s.firstName.trim() !== '' && s.lastName.trim() !== '', // Nom — first AND last, one item
     false, // Signes cliniques — at least one OBSERVED phenotype (§3)
   ];
-  if (s.prenatal) items.push(false /* Sexe fœtal */, false /* Âge gestationnel */);
+  if (s.prenatal) {
+    items.push(s.fetalSex !== '', gestAnswered(gestState(s.gestBasis, s.lmpDate, s.eddDate)));
+  }
   return { done: items.filter(Boolean).length, total: items.length };
 }
 
@@ -73,7 +81,9 @@ function CaseCreationPage() {
               <AnalysisSection state={state} update={update} />
             </SectionCard>
             {/* The fetus is the one sequenced; §2 holds the mother's identity in a prenatal case. */}
-            <SectionCard index={2} titleKey={state.prenatal ? 'patient_prenatal' : 'patient'} />
+            <SectionCard index={2} titleKey={state.prenatal ? 'patient_prenatal' : 'patient'}>
+              <PatientSection state={state} update={update} />
+            </SectionCard>
             <SectionCard index={3} titleKey="clinical_signs" />
             <SectionCard index={4} titleKey="other_clinical" />
             <h2 className="text-muted-foreground mt-2 text-sm font-semibold uppercase tracking-wide">

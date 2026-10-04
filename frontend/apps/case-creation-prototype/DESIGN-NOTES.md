@@ -5,7 +5,7 @@ The behaviour spec for the hi-fi prototype. Ported on 2026-09-29 from the wirefr
 decision was reached. **Decisions here are settled — don't re-litigate them.** New decisions go in
 with their *why*.
 
-Current to **2026-09-29**.
+Current to **2026-10-04**.
 
 ## What this is
 
@@ -268,6 +268,21 @@ Where the design system already had an answer, the prototype uses it over the wi
   rail's « Catégorie » row is « Pré/Postnatal », as in the case list. Kept on purpose:
   « Ethnicité(s) » (several values), « Note clinique » (sentence case), EN "Date of birth".
 - **The study is not in the rail**, as in the wireframe. It is optional and not part of the gate.
+- **Sexe uses the DS `ToggleGroup`** as in its story: outline, spacing 0 (joined segments), and
+  its own state colours (Lucas, 2026-10-04). The tooltip sits on the label inside each item.
+- **The patient dialog is the DS `Dialog`.** Esc, the backdrop and ✕ all reject: the safe way
+  out, since it writes nothing.
+- **A rejected identifier gets one message, not two** (2026-10-04). The field and its label turn
+  red, and the row-wide status line explains. The wireframe also put a message under the field;
+  in the hi-fi it pushed the identifier out of line with the organization and said the same thing
+  twice.
+- **Dates use Lucas's date picker, « With Input » type** (2026-10-04): a field you can type in,
+  with a calendar button at its end. Stand-in until the FE team adds it (COMPONENT-TODO).
+- **Dates are shown and typed as `aaaa-mm-jj` / `yyyy-mm-dd`**, the app's format in both
+  languages, rather than Figma's « Jan 10, 2025 ».
+- **The date of birth is capped at today** (new in the hi-fi). Future days are disabled in the
+  calendar. A typed future date is marked with a message, its rail row stays muted and it doesn't
+  count toward the gate, the same treatment as DDM / DPA out of range. Those bounds are unchanged.
 
 ## Backend snapshot (upstream/main, 2026-09-29)
 

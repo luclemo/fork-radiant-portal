@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { TFunction } from 'i18next';
 
 import AnalysisTypeCodeBadge from '@/components/base/badges/analysis-type-code-badge';
 import PriorityIndicator from '@/components/base/indicators/priority-indicator';
@@ -7,8 +8,10 @@ import { Card, CardContent } from '@/components/base/shadcn/card';
 import { cn } from '@/components/lib/utils';
 
 import type { FormState } from '../form-state';
+import { gestState, todayStr } from '../gestational';
 import { useCaseCreationT } from '../i18n';
 import { ANALYSES } from '../mock/analyses';
+import { lookupKey } from '../mock/patients';
 import ProgressBar from '../stand-ins/progress-bar';
 
 export type Gate = { done: number; total: number };
@@ -39,10 +42,24 @@ function GroupLabel({ children }: { children: ReactNode }) {
   );
 }
 
+/** What is stored and what is derived: « DDM 2026-04-02 · 24 sem. ». Inked only once answered. */
+function gestSummary(state: FormState, t: TFunction): [string | undefined, boolean] {
+  const gest = gestState(state.gestBasis, state.lmpDate, state.eddDate);
+  if (!gest) return [undefined, false];
+  if (gest.basis === 'demise') return [t('patient.gest_basis.demise'), true];
+  let text = [t(`patient.gest_abbr.${gest.basis}`), gest.date].filter(Boolean).join(' ');
+  if (gest.weeks !== undefined) text += ` · ${t('patient.weeks_short', { count: gest.weeks })}`;
+  return [text, !!gest.date && !gest.outOfRange];
+}
+
 function CaseRail({ state, gate, flash, onCreate, onDraft }: Props) {
   const { t } = useCaseCreationT();
   const analysis = ANALYSES.find(a => a.code === state.analysisCode);
   const ready = gate.done === gate.total;
+  const key = lookupKey(state.patientOrg, state.patientId);
+  const idRejected = !!key && state.lookupDecisions[key] === 'rejected';
+  const name = [state.firstName.trim(), state.lastName.trim()].filter(Boolean).join(' ');
+  const [gestText, gestDone] = gestSummary(state, t);
 
   return (
     <Card className="sticky top-6">
@@ -86,19 +103,39 @@ function CaseRail({ state, gate, flash, onCreate, onDraft }: Props) {
         </Row>
         {/* In a prenatal case §2 holds the mother's identity, so the identifier row says so.
             DDN and Nom are hers too but stay unqualified: three parentheses in a row is noise. */}
-        <Row label={t(state.prenatal ? 'rail.mother_id' : 'rail.proband_id')} />
-        <Row label={t('rail.patient_org')} />
-        <Row label={t(state.prenatal ? 'rail.sex_mother' : 'rail.sex')} />
-        <Row label={t('rail.dob')} />
-        <Row label={t('rail.name')} />
+        <Row
+          label={t(state.prenatal ? 'rail.mother_id' : 'rail.proband_id')}
+          done={!!state.patientId.trim() && !idRejected}
+        >
+          {state.patientId.trim() || undefined}
+        </Row>
+        <Row label={t('rail.patient_org')} done={!!state.patientOrg}>
+          {state.patientOrg || undefined}
+        </Row>
+        {/* The form shows initials; the rail spells the word: « Féminin », not « F ». */}
+        <Row label={t(state.prenatal ? 'rail.sex_mother' : 'rail.sex')} done={!!state.sex}>
+          {state.sex ? t(`patient.sex_full.${state.sex}`) : undefined}
+        </Row>
+        <Row label={t('rail.dob')} done={!!state.dob && state.dob <= todayStr()}>
+          {state.dob || undefined}
+        </Row>
+        {/* One gate item: a first name alone is a half-answer and stays muted. */}
+        <Row label={t('rail.name')} done={!!state.firstName.trim() && !!state.lastName.trim()}>
+          {name || undefined}
+        </Row>
         {/* Above the fetal block: a captioned group must end at the next caption. */}
         <Row label={t('rail.phenotypes')}>{t('rail.terms', { count: 0 })}</Row>
 
         {state.prenatal && (
           <>
             <GroupLabel>{t('rail.fetal')}</GroupLabel>
-            <Row label={t('rail.fetal_sex')} />
-            <Row label={t('rail.gest_age')} />
+            {/* « Indéterminé » is an answer, so it inks. */}
+            <Row label={t('rail.fetal_sex')} done={!!state.fetalSex}>
+              {state.fetalSex ? t(`patient.fetal_sex_full.${state.fetalSex}`) : undefined}
+            </Row>
+            <Row label={t('rail.gest_age')} done={gestDone}>
+              {gestText}
+            </Row>
           </>
         )}
 

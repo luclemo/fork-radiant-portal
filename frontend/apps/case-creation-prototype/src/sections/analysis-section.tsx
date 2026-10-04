@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 
 import { AutoComplete } from '@/components/base/data-entry/auto-complete';
 import PriorityIndicator from '@/components/base/indicators/priority-indicator';
@@ -19,6 +19,8 @@ import { type FormState, setPrenatal, setPrescriberIsMe, setPriorityByUser } fro
 import { useCaseCreationT } from '../i18n';
 import { ANALYSES } from '../mock/analyses';
 import { PRIORITIES, type PriorityCode, STUDIES } from '../mock/options';
+import Required from '../required';
+import { useFlash } from '../use-flash';
 
 // Radix Select cannot hold an empty value, so the clear row uses a sentinel. The design system's
 // Select has no clear of its own — logged in COMPONENT-TODO.md.
@@ -28,27 +30,6 @@ type Props = {
   state: FormState;
   update: (fn: (s: FormState) => FormState) => void;
 };
-
-function Required() {
-  return <span className="text-destructive">*</span>;
-}
-
-/** A value the form set by itself (the STAT prefill) flashes, so the change can't go unnoticed. */
-function useFlash(value: unknown, when: boolean) {
-  const [on, setOn] = useState(false);
-  const first = useRef(true);
-  useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
-    if (!when) return;
-    setOn(true);
-    const id = setTimeout(() => setOn(false), 900);
-    return () => clearTimeout(id);
-  }, [value]);
-  return on;
-}
 
 function AnalysisSection({ state, update }: Props) {
   const { t } = useCaseCreationT();

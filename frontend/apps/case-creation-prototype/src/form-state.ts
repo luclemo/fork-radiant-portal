@@ -1,4 +1,5 @@
 import type { PriorityCode } from './mock/options';
+import type { PatientRecord, SexCode } from './mock/patients';
 
 /** Gestational basis — built with §2's prenatal block. `demise` is « Fœtus décédé ». */
 export type GestBasis = 'lmp' | 'edd' | 'demise';
@@ -11,8 +12,25 @@ export type FormState = {
   study: string;
   prescriberIsMe: boolean;
   prescriberName: string;
-  // §2 prenatal block (fields arrive with §2; the priority rule already reads the basis)
+  // §2
+  patientId: string;
+  patientOrg: string;
+  jhn: string;
+  dob: string;
+  sex: SexCode | '';
+  firstName: string;
+  lastName: string;
+  /** One answer per org + identifier key, so a rejected key never re-opens the dialog in a loop. */
+  lookupDecisions: Record<string, 'confirmed' | 'rejected'>;
+  /** What the lookup itself wrote, so it can take back exactly that — and nothing edited since. */
+  autofilled: PatientRecord | null;
+  /** Sex before prenatal prefilled Féminin; put back when the box is unticked. */
+  sexBeforePrenatal: SexCode | '' | null;
+  // §2 prenatal block
+  fetalSex: SexCode | '';
   gestBasis: GestBasis | null;
+  lmpDate: string;
+  eddDate: string;
   /**
    * Priority prefill — two flags because they are two different facts (DESIGN-NOTES › Prenatal).
    * `priorityBeforePrenatal` is non-null exactly while the form owns the value, and holds what to
@@ -30,7 +48,20 @@ export const INITIAL_STATE: FormState = {
   study: '',
   prescriberIsMe: true,
   prescriberName: '',
+  patientId: '',
+  patientOrg: '',
+  jhn: '',
+  dob: '',
+  sex: '',
+  firstName: '',
+  lastName: '',
+  lookupDecisions: {},
+  autofilled: null,
+  sexBeforePrenatal: null,
+  fetalSex: '',
   gestBasis: null,
+  lmpDate: '',
+  eddDate: '',
   priorityBeforePrenatal: null,
   priorityUserSet: false,
 };
@@ -58,13 +89,67 @@ export function reconcilePriority(s: FormState): FormState {
   return s;
 }
 
-/** Ticking « Cas prénatal » afresh is a fresh prefill, whatever was chosen before. */
+/**
+ * Ticking « Cas prénatal » afresh is a fresh prefill, whatever was chosen before. The patient of
+ * record is then the mother, so Sex is known: prefilled Féminin, still editable, and put back
+ * unconditionally on untick — unlike Priority, where the user's own answer keeps winning.
+ */
 export function setPrenatal(s: FormState, on: boolean): FormState {
   const next: FormState = on
-    ? { ...s, prenatal: true, priorityUserSet: false }
+    ? { ...s, prenatal: true, priorityUserSet: false, sexBeforePrenatal: s.sex, sex: 'F' }
     : // Closing the block clears what it revealed: nothing hidden reaches the case.
-      { ...s, prenatal: false, gestBasis: null };
+      {
+        ...s,
+        prenatal: false,
+        sex: s.sexBeforePrenatal ?? s.sex,
+        sexBeforePrenatal: null,
+        fetalSex: '',
+        gestBasis: null,
+        lmpDate: '',
+        eddDate: '',
+      };
   return reconcilePriority(next);
+}
+
+/** Switching basis clears the other date: only the chosen one is the value. */
+export function setGestBasis(s: FormState, basis: GestBasis): FormState {
+  return reconcilePriority({
+    ...s,
+    gestBasis: basis,
+    lmpDate: basis === 'lmp' ? s.lmpDate : '',
+    eddDate: basis === 'edd' ? s.eddDate : '',
+  });
+}
+
+/** Take back only what the lookup wrote, and only fields not edited since. */
+export function clearAutofill(s: FormState): FormState {
+  const a = s.autofilled;
+  if (!a) return s;
+  return {
+    ...s,
+    jhn: s.jhn === a.jhn ? '' : s.jhn,
+    firstName: s.firstName === a.firstName ? '' : s.firstName,
+    lastName: s.lastName === a.lastName ? '' : s.lastName,
+    dob: s.dob === a.dob ? '' : s.dob,
+    sex: s.sex === a.sex ? '' : s.sex,
+    autofilled: null,
+  };
+}
+
+/** « Utiliser ce patient » — the only path by which looked-up PHI reaches the form. */
+export function confirmPatient(s: FormState, key: string, rec: PatientRecord): FormState {
+  const base = clearAutofill(s);
+  return {
+    ...base,
+    ...rec,
+    autofilled: rec,
+    lookupDecisions: { ...base.lookupDecisions, [key]: 'confirmed' },
+  };
+}
+
+/** Rejecting means the key is wrong. Nothing typed is erased; the identifier is marked instead. */
+export function rejectPatient(s: FormState, key: string): FormState {
+  return { ...clearAutofill(s), lookupDecisions: { ...s.lookupDecisions, [key]: 'rejected' } };
 }
 
 /** The user's own answer wins, and keeps winning for this episode. */
