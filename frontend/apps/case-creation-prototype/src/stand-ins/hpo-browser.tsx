@@ -1,23 +1,14 @@
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
-import { ChevronDownIcon, ChevronRightIcon, SearchIcon } from 'lucide-react';
+import { ChevronDownIcon, ChevronRightIcon } from 'lucide-react';
 
 import { Button } from '@/components/base/shadcn/button';
 import { Checkbox } from '@/components/base/shadcn/checkbox';
-import {
-  Dialog,
-  DialogBody,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/base/shadcn/dialog';
-import { Input } from '@/components/base/shadcn/input';
 import { cn } from '@/components/lib/utils';
 
 import { useCaseCreationT } from '../i18n';
 import { byLabel, fold, HPO_BY_ID, HPO_LIST, type Lang, termLabel, TREE_ROOT } from '../mock/hpo';
 
+import BrowserShell from './browser-shell';
 import Highlight from './highlight';
 
 export type BrowserTarget = 'observed' | 'notObserved';
@@ -152,29 +143,17 @@ function HpoBrowser({ target, lang, picked, locked, onApply, onCancel }: Props) 
   }
 
   return (
-    <Dialog open={!!target} onOpenChange={o => !o && onCancel()}>
-      <DialogContent size="md">
-        <DialogHeader>
-          <div className="flex flex-col gap-1.5">
-            <DialogTitle>{t('hpo_browser.title')}</DialogTitle>
-            <DialogDescription>
-              {t(target === 'notObserved' ? 'hpo_browser.target_not_observed' : 'hpo_browser.target_observed')}
-            </DialogDescription>
-          </div>
-        </DialogHeader>
-        <DialogBody className="flex flex-col gap-2 pb-2">
-          <Input
-            autoFocus
-            startIcon={SearchIcon}
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            placeholder={t('signs.search_placeholder')}
-            aria-label={t('signs.search_placeholder')}
-          />
-          {hint && <p className="text-muted-foreground text-xs italic">{hint}</p>}
-          <div className="border-border h-[52vh] overflow-auto rounded-md border p-1.5">{rows}</div>
-        </DialogBody>
-        <DialogFooter className="items-center">
+    <BrowserShell
+      open={!!target}
+      onCancel={onCancel}
+      title={t('hpo_browser.title')}
+      description={t(target === 'notObserved' ? 'hpo_browser.target_not_observed' : 'hpo_browser.target_observed')}
+      query={query}
+      onQuery={setQuery}
+      placeholder={t('signs.search_placeholder')}
+      hint={hint}
+      footer={
+        <>
           <span className="text-muted-foreground mr-auto text-xs">
             {t('hpo_browser.selected', { count: sel.size })}
           </span>
@@ -182,9 +161,11 @@ function HpoBrowser({ target, lang, picked, locked, onApply, onCancel }: Props) 
             {t('hpo_browser.cancel')}
           </Button>
           <Button onClick={() => onApply([...sel])}>{t('hpo_browser.apply')}</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </>
+      }
+    >
+      {rows}
+    </BrowserShell>
   );
 }
 

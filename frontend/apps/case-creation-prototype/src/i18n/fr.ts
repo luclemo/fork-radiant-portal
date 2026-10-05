@@ -97,6 +97,24 @@ const fr = {
     add_not_observed: 'Phénotypes NON OBSERVÉS',
     remove: 'Retirer',
   },
+  other: {
+    consanguinity: 'Consanguinité',
+    consanguinity_values: { consanguinity: 'Oui', no_consanguinity: 'Non', unknown: 'Inconnue' },
+    ethnicities: 'Ethnicité(s)',
+    ethnicities_placeholder: 'Sélectionner des ethnicités…',
+    condition: 'Indication principale (MONDO)',
+    condition_placeholder: 'Rechercher une indication (nom ou MONDO:…)',
+    browse_mondo: 'Parcourir l’arbre MONDO',
+    note: 'Note clinique',
+    note_placeholder:
+      'Hypothèse diagnostique, résultat d’examens para-cliniques ou toute autre information pertinente pour l’analyse du cas',
+  },
+  mondo_browser: {
+    title: 'Parcourir l’arbre MONDO',
+    shell_note: 'La maquette liste les conditions du catalogue ; le vrai navigateur montrerait la hiérarchie MONDO.',
+    no_results: 'Aucun terme correspondant.',
+    current: 'Indication actuelle',
+  },
   hpo_browser: {
     title: 'Parcourir l’arbre HPO',
     // One browser serves both lists, so it says which one it is filling (new in the hi-fi).
@@ -155,6 +173,7 @@ const fr = {
     terms_other: '{{count}} termes',
     members_one: '{{count}} membre',
     members_other: '{{count}} membres',
+    note_added: 'Ajoutée', // the wireframe's « Ajouté », agreed with « note »
   },
   flash: {
     incomplete: 'Complétez les champs essentiels ci-dessus, puis « Créer » devient disponible.',

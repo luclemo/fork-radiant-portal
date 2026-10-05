@@ -5,7 +5,7 @@ The behaviour spec for the hi-fi prototype. Ported on 2026-09-29 from the wirefr
 decision was reached. **Decisions here are settled — don't re-litigate them.** New decisions go in
 with their *why*.
 
-Current to **2026-10-04**.
+Current to **2026-10-05**.
 
 ## What this is
 
@@ -301,6 +301,24 @@ Where the design system already had an answer, the prototype uses it over the wi
 - **The whole HPO ontology ships with the prototype** (`src/mock/hpo-terms.txt`, 18,690 terms,
   1.5 MB) so search and the tree behave like the real thing. The real form would call
   `hpoTermAutoComplete`; the tree has no endpoint yet.
+- **§4 controls are the DS ones** (2026-10-05): Consanguinité is the DS `ToggleGroup` styled as Sexe
+  (outline, joined), but clearable. Ethnicité(s) is the DS `MultiSelector` (opens on focus, chips
+  wrap onto new lines). Indication principale is the DS `AutoComplete`, as in the interpretation
+  form's MONDO field. Note clinique is the DS `Textarea`.
+- **Consanguinity uses the backend's codes**: `consanguinity` · `no_consanguinity` · `unknown`,
+  shown as Oui · Non · Inconnue.
+- **Ethnicity: the wireframe's eight values, with qc-ethnicity codes.** Only `CA-FR`, `EU` and
+  `ES-AS` are in the qlin seed; the other five codes are placeholders.
+- **Ethnicities are listed in option order, not pick order** (changed from the wireframe). The DS
+  multi-select orders its chips that way, so the rail follows the chips and the two match.
+- **The picked indication shows its code** in the field (« Épilepsie (MONDO:0005027) »). The rail
+  shows the label alone. The catch-all « Non diagnostiqué — voir phénotypes » stays last.
+- **The indication flashes when the analysis sets it**, as Priority does for STAT. Picking an
+  analysis always re-derives it, and one that derives nothing clears it.
+- **The MONDO browser reuses the HPO browser's chrome** (one shared shell): same dialog, subtitle,
+  search and list. It has one value, so a click picks and closes. No draft, no « Appliquer »; the
+  current value carries a check.
+- **The note's rail row reads « Ajoutée »** (the wireframe had « Ajouté »), to agree with « note ».
 
 ## Backend snapshot (upstream/main, 2026-09-29)
 
@@ -352,3 +370,7 @@ Numbered as in the wireframe, so they can be cross-referenced. Ranked there by h
     she joins only when ticked in §5. Whether the backend's "mother = proband" model fits that is
     folded into 8.
 12. **Resolved**: `ordering_physician` is free text, so no directory typeahead is needed.
+13. **« Indication principale » or « Condition principale »?** The app already says « Condition
+    principale » for this field on its case pages. The wireframe and the prototype say « Indication
+    principale ». **To decide with the PM** (Lucas, 2026-10-05). Until then the prototype keeps
+    « Indication principale », in the §4 field and the rail.

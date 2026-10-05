@@ -98,6 +98,24 @@ const en: typeof fr = {
     add_not_observed: 'NOT-OBSERVED phenotypes',
     remove: 'Remove',
   },
+  other: {
+    consanguinity: 'Consanguinity',
+    consanguinity_values: { consanguinity: 'Yes', no_consanguinity: 'No', unknown: 'Unknown' },
+    ethnicities: 'Ethnicities',
+    ethnicities_placeholder: 'Select ethnicities…',
+    condition: 'Primary indication (MONDO)',
+    condition_placeholder: 'Search an indication (name or MONDO:…)',
+    browse_mondo: 'Browse the MONDO tree',
+    note: 'Clinical note',
+    note_placeholder:
+      'Diagnostic hypothesis, results of paraclinical tests, or any other information relevant to the analysis of the case',
+  },
+  mondo_browser: {
+    title: 'Browse the MONDO tree',
+    shell_note: 'The mock lists the catalog’s conditions; the real browser would show the MONDO hierarchy.',
+    no_results: 'No matching term.',
+    current: 'Current indication',
+  },
   hpo_browser: {
     title: 'Browse the HPO tree',
     target_observed: 'Ticked terms become the observed phenotypes.',
@@ -155,6 +173,7 @@ const en: typeof fr = {
     terms_other: '{{count}} terms',
     members_one: '{{count}} member',
     members_other: '{{count}} members',
+    note_added: 'Added',
   },
   flash: {
     incomplete: 'Complete the core fields above, then Create becomes available.',

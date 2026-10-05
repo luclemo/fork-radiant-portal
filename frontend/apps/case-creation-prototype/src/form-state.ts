@@ -1,5 +1,6 @@
 import type { OnsetCode } from './mock/hpo';
-import type { PriorityCode } from './mock/options';
+import { derivedCondition } from './mock/mondo';
+import type { ConsanguinityCode, PriorityCode } from './mock/options';
 import type { PatientRecord, SexCode } from './mock/patients';
 
 /** An observed phenotype: the case's Term, `{ id, onset_code }`. */
@@ -47,6 +48,13 @@ export type FormState = {
   observed: ObservedTerm[];
   /** Not-observed terms carry no onset: they were looked for and are absent. */
   notObserved: string[];
+  // §4 — all optional
+  consanguinity: ConsanguinityCode | '';
+  ethnicities: string[];
+  /** MONDO id (or the catch-all). Prefilled from the analysis, fully editable. */
+  condition: string;
+  /** Free text — also carries the diagnosis hypothesis (`note`). */
+  note: string;
 };
 
 export const INITIAL_STATE: FormState = {
@@ -74,7 +82,19 @@ export const INITIAL_STATE: FormState = {
   priorityUserSet: false,
   observed: [],
   notObserved: [],
+  consanguinity: '',
+  ethnicities: [],
+  condition: '',
+  note: '',
 };
+
+/**
+ * Picking an analysis re-derives the indication, every time: its MONDO condition, or a blank when
+ * it derives none (RAPIDE, GENOR, an HPO code) — so a stale indication never outlives a switch.
+ */
+export function setAnalysis(s: FormState, code: string): FormState {
+  return { ...s, analysisCode: code, condition: derivedCondition(code) };
+}
 
 /**
  * STAT is prefilled for a prenatal case, but not for a fetal demise — nothing to rush for. Two

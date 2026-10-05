@@ -15,7 +15,7 @@ import {
 } from '@/components/base/shadcn/select';
 import { cn } from '@/components/lib/utils';
 
-import { type FormState, setPrenatal, setPrescriberIsMe, setPriorityByUser } from '../form-state';
+import { type FormState, setAnalysis, setPrenatal, setPrescriberIsMe, setPriorityByUser } from '../form-state';
 import { useCaseCreationT } from '../i18n';
 import { ANALYSES } from '../mock/analyses';
 import { PRIORITIES, type PriorityCode, STUDIES } from '../mock/options';
@@ -66,7 +66,7 @@ function AnalysisSection({ state, update }: Props) {
             <AutoComplete
               options={analysisOptions}
               value={state.analysisCode}
-              onChange={code => update(s => ({ ...s, analysisCode: code }))}
+              onChange={code => update(s => setAnalysis(s, code))}
               placeholder={t('analysis.placeholder')}
               emptyIndicator={<div className="text-center text-sm">{t('analysis.no_match')}</div>}
               optionFilterProp="filter"

@@ -6,6 +6,7 @@ import { lookupKey } from './mock/patients';
 import CaseRail, { type Gate } from './rail/case-rail';
 import AnalysisSection from './sections/analysis-section';
 import ClinicalSignsSection from './sections/clinical-signs-section';
+import OtherClinicalSection from './sections/other-clinical-section';
 import PatientSection from './sections/patient-section';
 import { type FormState, INITIAL_STATE } from './form-state';
 import { gestAnswered, gestState, todayStr } from './gestational';
@@ -89,7 +90,9 @@ function CaseCreationPage() {
             <SectionCard index={3} titleKey="clinical_signs">
               <ClinicalSignsSection state={state} update={update} />
             </SectionCard>
-            <SectionCard index={4} titleKey="other_clinical" />
+            <SectionCard index={4} titleKey="other_clinical">
+              <OtherClinicalSection state={state} update={update} />
+            </SectionCard>
             <h2 className="text-muted-foreground mt-2 text-sm font-semibold uppercase tracking-wide">
               {t('section.optional_sections')}
             </h2>

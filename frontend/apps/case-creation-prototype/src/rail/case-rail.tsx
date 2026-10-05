@@ -11,6 +11,9 @@ import type { FormState } from '../form-state';
 import { gestState, todayStr } from '../gestational';
 import { useCaseCreationT } from '../i18n';
 import { ANALYSES } from '../mock/analyses';
+import type { Lang } from '../mock/hpo';
+import { conditionLabel } from '../mock/mondo';
+import { ETHNICITIES } from '../mock/options';
 import { lookupKey } from '../mock/patients';
 import ProgressBar from '../stand-ins/progress-bar';
 
@@ -53,7 +56,8 @@ function gestSummary(state: FormState, t: TFunction): [string | undefined, boole
 }
 
 function CaseRail({ state, gate, flash, onCreate, onDraft }: Props) {
-  const { t } = useCaseCreationT();
+  const { t, i18n } = useCaseCreationT();
+  const lang: Lang = i18n.language.startsWith('fr') ? 'fr' : 'en';
   const analysis = ANALYSES.find(a => a.code === state.analysisCode);
   const ready = gate.done === gate.total;
   const key = lookupKey(state.patientOrg, state.patientId);
@@ -143,10 +147,26 @@ function CaseRail({ state, gate, flash, onCreate, onDraft }: Props) {
         )}
 
         <GroupLabel>{t('rail.optional_additions')}</GroupLabel>
-        <Row label={t('rail.condition')} />
-        <Row label={t('rail.consanguinity')} />
-        <Row label={t('rail.ethnicities')} />
-        <Row label={t('rail.note')} />
+        {/* The label alone: the code is in the form, and the rail is read at a glance. */}
+        <Row label={t('rail.condition')} done={!!state.condition}>
+          {state.condition ? conditionLabel(state.condition, lang).replace(/\s*—.*$/, '') : undefined}
+        </Row>
+        {/* No default: « — » until answered, then inked — « Inconnue » included. */}
+        <Row label={t('rail.consanguinity')} done={!!state.consanguinity}>
+          {state.consanguinity ? t(`other.consanguinity_values.${state.consanguinity}`) : undefined}
+        </Row>
+        {/* In the chips' order — the DS multi-select lists picks in option order, not pick order. */}
+        <Row label={t('rail.ethnicities')} done={state.ethnicities.length > 0}>
+          {state.ethnicities.length
+            ? ETHNICITIES.filter(e => state.ethnicities.includes(e.code))
+                .map(e => e[lang])
+                .join(', ')
+            : undefined}
+        </Row>
+        {/* Free text: an indicator only, never the text itself. */}
+        <Row label={t('rail.note')} done={!!state.note.trim()}>
+          {state.note.trim() ? t('rail.note_added') : undefined}
+        </Row>
         <Row label={t('rail.family')}>{t('rail.members', { count: 0 })}</Row>
       </CardContent>
     </Card>
