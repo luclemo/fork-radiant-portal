@@ -14,8 +14,6 @@ import { Field, FieldError, FieldLabel } from '@/components/base/shadcn/field';
 import { Input } from '@/components/base/shadcn/input';
 import { RadioGroup, RadioGroupItem } from '@/components/base/shadcn/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/base/shadcn/select';
-import { ToggleGroup, ToggleGroupItem } from '@/components/base/shadcn/toggle-group';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/base/shadcn/tooltip';
 import { cn } from '@/components/lib/utils';
 
 import {
@@ -30,6 +28,7 @@ import { gestMax, gestState, todayStr } from '../gestational';
 import { useCaseCreationT } from '../i18n';
 import { LOOKUP_DELAY, lookupKey, ORGS, PATIENT_DB, type PatientRecord, type SexCode } from '../mock/patients';
 import Required from '../required';
+import RequiredSegments from '../required-segments';
 import DatePicker from '../stand-ins/date-picker';
 import { useFlash } from '../use-flash';
 
@@ -40,58 +39,6 @@ type Props = {
 
 const SEXES: SexCode[] = ['M', 'F', 'U'];
 const FETAL_SEXES: SexCode[] = ['F', 'M', 'U'];
-
-/**
- * A required single choice that starts empty. The DS ToggleGroup can start empty; Radix lets a
- * second click on the selected item empty it again, so that click is ignored — a stray click must
- * not un-answer a required field (only Consanguinité, in §4, is clearable).
- */
-function RequiredSegments({
-  value,
-  onChange,
-  options,
-  label,
-  title,
-  className,
-}: {
-  value: string;
-  onChange: (v: SexCode) => void;
-  options: SexCode[];
-  label: (v: SexCode) => string;
-  title?: (v: SexCode) => string;
-  className?: string;
-}) {
-  return (
-    <ToggleGroup
-      type="single"
-      variant="outline"
-      spacing={0}
-      value={value}
-      onValueChange={v => v && onChange(v as SexCode)}
-      className={className}
-    >
-      {options.map(v =>
-        title ? (
-          // The tooltip sits on the label inside the item, not around it: as the trigger, the item
-          // would take the tooltip's data-state and lose its own selected look, and a wrapper would
-          // break the joined corners of the group.
-          <ToggleGroupItem key={v} value={v} aria-label={title(v)} className="min-w-9 px-0">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="flex h-full w-full cursor-pointer items-center justify-center px-2.5">{label(v)}</span>
-              </TooltipTrigger>
-              <TooltipContent>{title(v)}</TooltipContent>
-            </Tooltip>
-          </ToggleGroupItem>
-        ) : (
-          <ToggleGroupItem key={v} value={v}>
-            {label(v)}
-          </ToggleGroupItem>
-        ),
-      )}
-    </ToggleGroup>
-  );
-}
 
 type Pending = { key: string; rec: PatientRecord };
 

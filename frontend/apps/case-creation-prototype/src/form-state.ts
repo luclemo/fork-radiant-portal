@@ -2,12 +2,37 @@ import type { OnsetCode } from './mock/hpo';
 import { derivedCondition } from './mock/mondo';
 import type { ConsanguinityCode, PriorityCode } from './mock/options';
 import type { PatientRecord, SexCode } from './mock/patients';
+import { todayStr } from './gestational';
 
 /** An observed phenotype: the case's Term, `{ id, onset_code }`. */
 export type ObservedTerm = { id: string; onset: OnsetCode };
 
 /** Gestational basis — built with §2's prenatal block. `demise` is « Fœtus décédé ». */
 export type GestBasis = 'lmp' | 'edd' | 'demise';
+
+/** Family relations (§5). The full list, wider than what the backend sequences — open question 9. */
+export type RelationCode = 'mother' | 'father' | 'sister' | 'brother' | 'daughter' | 'son' | 'half_sibling' | 'other';
+export type AffectedCode = 'affected' | 'not_affected' | 'unknown';
+
+/**
+ * One relative. The top line is the family-history record; the identification fields only count
+ * while `inAnalysis` (a member in the analysis becomes a Patient) and are blank otherwise.
+ */
+export type FamilyMember = {
+  uid: number;
+  relation: RelationCode | '';
+  sex: SexCode | '';
+  status: AffectedCode;
+  note: string;
+  inAnalysis: boolean;
+  identifier: string;
+  /** `null` = follows the proband's patient organization; a pick (even a clear) is the user's own. */
+  org: string | null;
+  jhn: string;
+  dob: string;
+  firstName: string;
+  lastName: string;
+};
 
 export type FormState = {
   // §1
@@ -55,6 +80,9 @@ export type FormState = {
   condition: string;
   /** Free text — also carries the diagnosis hypothesis (`note`). */
   note: string;
+  // §5 — optional; every card is a family-history record
+  family: FamilyMember[];
+  nextMemberUid: number;
 };
 
 export const INITIAL_STATE: FormState = {
@@ -86,6 +114,8 @@ export const INITIAL_STATE: FormState = {
   ethnicities: [],
   condition: '',
   note: '',
+  family: [],
+  nextMemberUid: 1,
 };
 
 /**
@@ -125,6 +155,10 @@ export function reconcilePriority(s: FormState): FormState {
  * unconditionally on untick — unlike Priority, where the user's own answer keeps winning.
  */
 export function setPrenatal(s: FormState, on: boolean): FormState {
+  return normalizeFamily(setPrenatalFields(s, on));
+}
+
+function setPrenatalFields(s: FormState, on: boolean): FormState {
   const next: FormState = on
     ? { ...s, prenatal: true, priorityUserSet: false, sexBeforePrenatal: s.sex, sex: 'F' }
     : // Closing the block clears what it revealed: nothing hidden reaches the case.
@@ -216,4 +250,135 @@ export function applyBrowser(s: FormState, target: 'observed' | 'notObserved', p
   const kept = s.observed.filter(o => picked.includes(o.id));
   const added = picked.filter(id => !kept.some(o => o.id === id)).map(id => ({ id, onset: 'unknown' as const }));
   return { ...s, observed: [...kept, ...added] };
+}
+
+// ---- §5 Famille ----
+
+/** The sex a relation implies, where it is unambiguous. Half-sibling and Other leave it alone. */
+export const RELATION_SEX: Partial<Record<RelationCode, SexCode>> = {
+  mother: 'F',
+  father: 'M',
+  sister: 'F',
+  brother: 'M',
+  daughter: 'F',
+  son: 'M',
+};
+
+/** Mother and Father can each appear once; a new card prefills the first not yet used. */
+export const UNIQUE_RELATIONS: RelationCode[] = ['mother', 'father'];
+
+/**
+ * The one card §2 stands in for: prenatal, Mother, in the analysis. Her identification is stated
+ * (derived from §2), not re-asked, so its inputs stay empty and hidden.
+ */
+export function isMirrored(s: Pick<FormState, 'prenatal'>, m: Pick<FamilyMember, 'relation' | 'inAnalysis'>): boolean {
+  return s.prenatal && m.relation === 'mother' && m.inAnalysis;
+}
+
+const BLANK_IDENTIFICATION = { identifier: '', org: null, jhn: '', dob: '', firstName: '', lastName: '' } as const;
+
+/**
+ * Nothing hidden reaches the case: a card that is out of the analysis, or whose identity §2 holds,
+ * keeps no identification. Idempotent, so it runs after anything that could change either fact.
+ */
+export function normalizeFamily(s: FormState): FormState {
+  let changed = false;
+  const family = s.family.map(m => {
+    if (m.inAnalysis && !isMirrored(s, m)) return m;
+    const dirty = m.identifier || m.org !== null || m.jhn || m.dob || m.firstName || m.lastName;
+    if (!dirty) return m;
+    changed = true;
+    return { ...m, ...BLANK_IDENTIFICATION };
+  });
+  return changed ? { ...s, family } : s;
+}
+
+function patchMember(s: FormState, uid: number, patch: Partial<FamilyMember>): FormState {
+  return { ...s, family: s.family.map(m => (m.uid === uid ? { ...m, ...patch } : m)) };
+}
+
+export function relationsInUse(s: FormState, exceptUid?: number): RelationCode[] {
+  return s.family.filter(m => m.uid !== exceptUid && m.relation !== '').map(m => m.relation as RelationCode);
+}
+
+/** A new card prefills Mother, then Father; nothing once both exist. */
+export function addMember(s: FormState): FormState {
+  const used = relationsInUse(s);
+  const relation = UNIQUE_RELATIONS.find(r => !used.includes(r)) ?? '';
+  const member: FamilyMember = {
+    uid: s.nextMemberUid,
+    relation,
+    sex: relation ? (RELATION_SEX[relation] ?? '') : '',
+    status: 'unknown',
+    note: '',
+    inAnalysis: false,
+    ...BLANK_IDENTIFICATION,
+  };
+  return { ...s, family: [...s.family, member], nextMemberUid: s.nextMemberUid + 1 };
+}
+
+export function removeMember(s: FormState, uid: number): FormState {
+  return { ...s, family: s.family.filter(m => m.uid !== uid) };
+}
+
+/**
+ * The relation infers sex where it can (still editable). Leaving « Mère » while she was the mirrored
+ * card empties the block — those values are §2's and the user never typed them here — whereas on an
+ * ordinary card a relationship correction keeps what was typed.
+ */
+export function setMemberRelation(s: FormState, uid: number, relation: RelationCode | ''): FormState {
+  const inferred = relation ? RELATION_SEX[relation] : undefined;
+  const wasMirrored = s.family.some(m => m.uid === uid && isMirrored(s, m));
+  let next = patchMember(s, uid, { relation, ...(inferred ? { sex: inferred } : {}) });
+  if (wasMirrored && relation !== 'mother') next = patchMember(next, uid, { ...BLANK_IDENTIFICATION });
+  return normalizeFamily(next);
+}
+
+/** Unticking blanks the identification inputs rather than just hiding them. */
+export function setMemberInAnalysis(s: FormState, uid: number, on: boolean): FormState {
+  return normalizeFamily(patchMember(s, uid, { inAnalysis: on }));
+}
+
+export function setMemberField<K extends keyof FamilyMember>(
+  s: FormState,
+  uid: number,
+  key: K,
+  value: FamilyMember[K],
+): FormState {
+  return patchMember(s, uid, { [key]: value });
+}
+
+/** The organization a card shows: its own pick, else the proband's. */
+export function memberOrg(s: FormState, m: FamilyMember): string {
+  return m.org ?? s.patientOrg;
+}
+
+/** The people this case sequences: the proband plus every card ticked into the analysis. */
+export function sequencedCount(s: FormState): number {
+  return 1 + s.family.filter(m => m.inAnalysis).length;
+}
+
+export type MemberProblem = 'relation' | 'sex' | 'identifier' | 'org' | 'dob' | 'firstName' | 'lastName';
+
+/**
+ * What Create needs from a card, beyond the core gate. The top line (relation, sex) is the
+ * family-history record; a member in the analysis becomes a Patient, so it also needs an identifier,
+ * organization, date of birth and — checked separately, as fields — first and last name. The mirrored
+ * mother needs none: §2 holds her identity and the core gate already asks for it there.
+ */
+export function memberProblems(s: FormState, m: FamilyMember): MemberProblem[] {
+  const out: MemberProblem[] = [];
+  if (!m.relation) out.push('relation');
+  if (!m.sex) out.push('sex');
+  if (!m.inAnalysis || isMirrored(s, m)) return out;
+  if (!m.identifier.trim()) out.push('identifier');
+  if (!memberOrg(s, m)) out.push('org');
+  if (!m.dob || m.dob > todayStr()) out.push('dob');
+  if (!m.firstName.trim()) out.push('firstName');
+  if (!m.lastName.trim()) out.push('lastName');
+  return out;
+}
+
+export function familyProblemCount(s: FormState): number {
+  return s.family.reduce((n, m) => n + memberProblems(s, m).length, 0);
 }

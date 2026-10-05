@@ -140,6 +140,35 @@ const en: typeof fr = {
     month: 'Month',
     year: 'Year',
   },
+  family: {
+    instruction:
+      'Report family history and, where applicable, include members in the proband’s genetic analysis (duo, trio, etc.). A member included in the analysis requires a patient record (identifier).',
+    add: 'Add a family member',
+    remove: 'Remove this member',
+    relation: 'Relationship',
+    relation_placeholder: 'Select…', // the one placeholder that stays short: the field is narrow
+    relations: {
+      mother: 'Mother',
+      father: 'Father',
+      sister: 'Sister',
+      brother: 'Brother',
+      daughter: 'Daughter',
+      son: 'Son',
+      half_sibling: 'Half-sibling',
+      other: 'Other',
+    },
+    sex: 'Sex',
+    status: 'Affected status',
+    statuses: { affected: 'Affected', not_affected: 'Not affected', unknown: 'Unknown' },
+    status_abbr: { affected: 'A', not_affected: 'NA', unknown: 'U' },
+    note: 'Specify',
+    note_placeholder: 'Free text',
+    in_analysis: 'Include in the genetic analysis',
+    patient_record: 'Patient record:',
+    patient_record_empty:
+      'Patient record: taken from section 2, once the identifier and patient organization are filled in there.',
+    required: 'This field is required',
+  },
   category: {
     prenatal: 'Prenatal',
     postnatal: 'Postnatal',
@@ -174,11 +203,19 @@ const en: typeof fr = {
     members_one: '{{count}} member',
     members_other: '{{count}} members',
     note_added: 'Added',
+    composition: { 2: 'Duo', 3: 'Trio', 4: 'Quad', many: '{{count}} sequenced' },
+    pedigree: 'Pedigree',
+    pedigree_aria: 'Family pedigree',
+    pedigree_proband: 'Proband',
+    pedigree_other_one: '+ {{count}} not shown ({{list}}) — half-siblings and “other” aren’t auto-placed.',
+    pedigree_other_other: '+ {{count}} not shown ({{list}}) — half-siblings and “other” aren’t auto-placed.',
   },
   flash: {
     incomplete: 'Complete the core fields above, then Create becomes available.',
     created: '✓ Case created (prototype — nothing was actually saved).',
     draft: '✓ Draft saved (prototype) — you can leave and finish later.',
+    family_missing_one: 'Complete a family member’s card: 1 required field is missing.',
+    family_missing_other: 'Complete the family members’ cards: {{count}} required fields are missing.',
   },
 };
 

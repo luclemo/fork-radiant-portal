@@ -13,9 +13,9 @@ Status: **needs design** → **designed** (Figma link) → **stand-in built** �
 | Progress bar | Rail: « x sur 7 champs requis » | stand-in built | — | Nothing like it in the library. Stand-in: `src/stand-ins/progress-bar.tsx`. |
 | Date picker, « With Input » type | DDN (§2), DDM / DPA (prenatal) | designed · stand-in built | [Date Picker page](https://www.figma.com/design/Y0l9SoMCYlTQZxce3NzZiK/Radiant-ui-kit---shadcn---January-2025?node-id=244-2898), [components](https://www.figma.com/design/Y0l9SoMCYlTQZxce3NzZiK/Radiant-ui-kit---shadcn---January-2025?node-id=26952-19852), [in a field](https://www.figma.com/design/Y0l9SoMCYlTQZxce3NzZiK/Radiant-ui-kit---shadcn---January-2025?node-id=27119-28101) | shadcn's date picker "Input" example on our theme. Stand-in: `src/stand-ins/date-picker.tsx`. See notes below. |
 | Calendar (month + year dropdowns) | Inside the date picker | designed · stand-in built | [components](https://www.figma.com/design/Y0l9SoMCYlTQZxce3NzZiK/Radiant-ui-kit---shadcn---January-2025?node-id=26952-19852) | shadcn's Calendar on our theme. Stand-in: `src/stand-ins/calendar.tsx`. See notes below. |
-| Segmented control (empty start, clearable) | Sexe (§2, fetal, §5), Consanguinité (§4) | partly covered | — | `ToggleButtonGroup` must start with a value. The DS `ToggleGroup` (shadcn, has a story) can start empty, so §2 uses it: outline, spacing 0, its own colours. Gap: a tooltip can't wrap an item (it takes over the item's selected state), so the tooltip sits on the label inside. Required groups ignore the click that would empty them. |
+| Segmented control (empty start, clearable) | Sexe (§2, fetal, §5), Consanguinité (§4) | partly covered | — | `ToggleButtonGroup` must start with a value. The DS `ToggleGroup` (shadcn, has a story) can start empty, so §2 uses it: outline, spacing 0, its own colours. Gap: a tooltip can't wrap an item (it takes over the item's selected state), so the tooltip sits on the label inside. Required groups ignore the click that would empty them. Also used for Statut (§5, initials A · NA · I). |
 | Tree browser with checkboxes | HPO browser (§3), MONDO browser (§4) | needs design · stand-in built | — | No tree component at all. Stand-ins: `src/stand-ins/hpo-browser.tsx` (DS Dialog + Checkbox, chevron buttons, lazy rows, search with the path to each match) and `mondo-browser.tsx` (flat, single pick), sharing `browser-shell.tsx`. Needs: indent, caret, a node that sits under several parents, a locked row, and a single-pick mode. |
-| Pedigree | Rail | needs design | — | Symbols exist as icons (`base/icons/pedigree-*`). Lines and layout are new. |
+| Pedigree | Rail | designed · stand-in built | [Pedigree component set](https://www.figma.com/design/Y0l9SoMCYlTQZxce3NzZiK/Radiant-ui-kit---shadcn---January-2025?node-id=24830-9173) | Stand-ins: `src/rail/pedigree.tsx` (lines and layout, which are new) and `src/stand-ins/pedigree-proband-symbol.tsx` (the Figma proband symbol, traced from its vectors). Relatives use the code icons (`base/icons/pedigree-*`). See « Pedigree: Figma and code icons » below. |
 
 ## Changes to existing components
 
@@ -32,6 +32,18 @@ Status: **needs design** → **designed** (Figma link) → **stand-in built** �
 | AutoComplete, MultiSelector (cmdk) | Two on one page fight over focus. When one changes its text or selection while the cursor is in another, cmdk moves the cursor into it. The prototype holds the indication back until focus leaves the analysis field | open |
 | MultiSelector | Its menu doesn't follow a change of language when given only `defaultOptions`; passing `options` too fixes it. Chips follow option order, not pick order | open |
 | Search match highlight | No shared component. The prototype bolds the match (`src/stand-ins/highlight.tsx`), accent-insensitive, like the backend's `<strong>` | open |
+
+## Pedigree: Figma and code icons
+
+The Figma `Pedigree` set is ahead of the icons in code. For the FE team, to bring them level:
+
+- **Proband variants are missing in code** (Figma: Proband=True, 6 variants: male / female / unspecified × affected / unaffected). The arrow is part of the symbol, with a white halo where it crosses the shape. The proband icon in code is an outline with an arrow, which matches neither Figma variant. The prototype traces the three *affected* ones (the proband is always affected there); the unaffected three are not used.
+- **Not in Figma either, and the form needs them:**
+  - Affected status « unknown »: the set has only Affected / Unaffected (plus Carrier). The prototype draws « ? » on the unaffected symbol.
+  - Proband that is deceased (fetal demise): Deceased exists only for non-proband, unaffected symbols. The prototype draws a slash over the affected proband, in the background colour, so it shows only on the filled shape.
+- **Not used by the form:** Carrier (dot inside the symbol).
+- **Figma draws the deceased slash inside the symbol**, standard notation draws it past the edge. Decide which one the kit means.
+- **Lines and layout** (parents, siblings, children, consanguineous double line) are not in the kit. The prototype's layout is in `src/rail/pedigree.tsx`.
 
 AutoComplete searches one field only. That is not a gap: the prototype passes a combined name + code
 text, the same way the MONDO field in the interpretation form does.

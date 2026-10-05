@@ -140,6 +140,35 @@ const fr = {
     month: 'Mois',
     year: 'Année',
   },
+  family: {
+    instruction:
+      'Rapportez des antécédents familiaux et incluez, le cas échéant, des membres dans l’analyse génétique du proband (duo, trio, etc.). Un membre inclus dans l’analyse requiert un dossier patient (identifiant).',
+    add: 'Ajouter un membre de la famille',
+    remove: 'Retirer ce membre',
+    relation: 'Lien de parenté',
+    relation_placeholder: 'Sélectionner…', // the one placeholder that stays short: the field is narrow
+    relations: {
+      mother: 'Mère',
+      father: 'Père',
+      sister: 'Sœur',
+      brother: 'Frère',
+      daughter: 'Fille',
+      son: 'Fils',
+      half_sibling: 'Demi-frère / sœur',
+      other: 'Autre',
+    },
+    sex: 'Sexe',
+    status: 'Statut', // the app says « Affecté », not the wireframe's « Atteint »
+    statuses: { affected: 'Affecté', not_affected: 'Non affecté', unknown: 'Inconnu' },
+    status_abbr: { affected: 'A', not_affected: 'NA', unknown: 'I' },
+    note: 'Préciser',
+    note_placeholder: 'Texte libre',
+    in_analysis: 'Inclure dans l’analyse génétique',
+    patient_record: 'Dossier patient :',
+    patient_record_empty:
+      'Dossier patient : repris de la section 2, dès que l’identifiant et l’établissement du patient y seront renseignés.',
+    required: 'Ce champ est requis', // as in the app
+  },
   category: {
     prenatal: 'Prénatal',
     postnatal: 'Postnatal',
@@ -174,11 +203,21 @@ const fr = {
     members_one: '{{count}} membre',
     members_other: '{{count}} membres',
     note_added: 'Ajoutée', // the wireframe's « Ajouté », agreed with « note »
+    composition: { 2: 'Duo', 3: 'Trio', 4: 'Quatuor', many: '{{count}} séquencés' },
+    pedigree: 'Pedigree',
+    pedigree_aria: 'Pedigree familial',
+    pedigree_proband: 'Proband',
+    pedigree_other_one:
+      '+ {{count}} non affiché ({{list}}) — les demi-frères/sœurs et « autre » ne sont pas placés automatiquement.',
+    pedigree_other_other:
+      '+ {{count}} non affichés ({{list}}) — les demi-frères/sœurs et « autre » ne sont pas placés automatiquement.',
   },
   flash: {
     incomplete: 'Complétez les champs essentiels ci-dessus, puis « Créer » devient disponible.',
     created: '✓ Cas créé (prototype — rien n’a réellement été enregistré).',
     draft: '✓ Brouillon enregistré (prototype) — vous pouvez quitter et terminer plus tard.',
+    family_missing_one: 'Complétez la fiche d’un membre de la famille : 1 champ requis manquant.',
+    family_missing_other: 'Complétez les fiches des membres de la famille : {{count}} champs requis manquants.',
   },
 };
 

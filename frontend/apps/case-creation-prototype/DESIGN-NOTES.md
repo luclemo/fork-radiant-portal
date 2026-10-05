@@ -5,7 +5,7 @@ The behaviour spec for the hi-fi prototype. Ported on 2026-09-29 from the wirefr
 decision was reached. **Decisions here are settled — don't re-litigate them.** New decisions go in
 with their *why*.
 
-Current to **2026-10-05**.
+Current to **2026-10-05** (§5 built).
 
 ## What this is
 
@@ -251,11 +251,10 @@ bar · `x sur 7 champs requis`, then 22 px, then « Résumé du cas »:
 Where the design system already had an answer, the prototype uses it over the wireframe's drawing.
 
 - **Case type uses the DS badge** (`AnalysisTypeCodeBadge`): icon-only, name in the tooltip, as in
-  the case list. The wireframe drew a coloured text badge. The DS also has a `germline_family`
-  variant ("Family germline"), so it already tells solo from family. **To decide in review**:
-  switch to `germline_family` once a relative is sequenced, and whether the composition badge
-  (« Trio ») still earns its place beside it. For now: `germline` / `somatic`, composition badge
-  still planned for §5.
+  the case list. The wireframe drew a coloured text badge. **Settled (2026-10-05):** the badge
+  switches from `germline` to `germline_family` ("Family germline") as soon as one relative is
+  ticked into the analysis, and the composition badge (« Duo » · « Trio » · « Quatuor ») stays
+  beside it: the icon says *family*, the word says *how many*. Somatic never switches.
 - **Priority uses the DS `PriorityIndicator`** in the select and the rail, with its own FR/EN
   labels and colours. Codes are `routine` · `urgent` · `stat` (the DS also knows `asap`; the form
   doesn't offer it).
@@ -320,6 +319,36 @@ Where the design system already had an answer, the prototype uses it over the wi
   current value carries a check.
 - **The note's rail row reads « Ajoutée »** (the wireframe had « Ajouté »), to agree with « note ».
 
+### §5 Famille (hi-fi)
+
+- **A card is DS controls end to end** (2026-10-05): relation is the DS `Select` (required, so no
+  clear row; Mère / Père are greyed once another card has them), Sexe is the same joined
+  `ToggleGroup` as §2 (initials, full word as tooltip), Statut is that control again with « A · NA ·
+  I » and the full word as tooltip, Préciser is the DS `Input`. « Inclure dans l'analyse génétique »
+  is the DS `Checkbox`; the card's ✕ sits in its top-right corner so it costs no row.
+- **Statut says « Affecté / Non affecté / Inconnu »**, the app's words (« Atteint » was the
+  wireframe's). It starts at « Inconnu », which is an answer, so it carries no asterisk.
+- **A new card prefills Mère, then Père**, and the relation fills the sex it implies (editable,
+  flashes). Half-sibling and Autre leave sex alone.
+- **A relative's organization follows the proband's** until the user picks another. It is stored as
+  « follows » (empty), not as a copy, so changing §2 moves every card that was never touched.
+- **Create asks cards for more, after the core gate** (the 7 / 9 count is unchanged and does not
+  count family). Every card needs relation and sex. A card in the analysis also needs identifier,
+  organization, date of birth and first and last name, **checked separately**: here each is a field
+  that is filled or not. The prenatal mother card needs none, §2 holds her identity. Nothing is
+  marked until Create has been tried; then fields are marked, the page scrolls to the first card
+  and the rail says how many are missing.
+- **No existing-patient lookup on a relative** (not in the wireframe either). §2 looks a patient up
+  by organization + identifier and asks for confirmation before writing anything; a relative in the
+  analysis has no such step. **A question for the team**, open question 14.
+- **The pedigree is drawn from the DS pedigree icons** (male / female / unknown, affected / not
+  affected), with new lines and layout. The proband uses the Figma kit's symbol, arrow included
+  (the code icons don't have it yet: COMPONENT-TODO). The proband is always affected; a
+  status of « Inconnu » draws the not-affected symbol with a « ? ». The partner of a case with
+  children is dimmed and unnamed. Consanguinity doubles the parents' line. Gaps in COMPONENT-TODO.
+- **The Famille rail row counts cards**; the composition badge counts the batch. They are meant to
+  disagree.
+
 ## Backend snapshot (upstream/main, 2026-09-29)
 
 The backend is being built for this form in parallel (migration 000038 restores `draft` "for the
@@ -374,3 +403,11 @@ Numbered as in the wireframe, so they can be cross-referenced. Ranked there by h
     principale » for this field on its case pages. The wireframe and the prototype say « Indication
     principale ». **To decide with the PM** (Lucas, 2026-10-05). Until then the prototype keeps
     « Indication principale », in the §4 field and the rail.
+14. **Existing-patient lookup for a relative in the analysis** (2026-10-05, to decide as a team).
+    A member ticked into the analysis becomes a Patient, but the card asks for its identification
+    from scratch. §2 does better: it keys on organization + identifier, finds an existing record and
+    asks for confirmation before writing PHI. The same family can come back (a sibling already
+    sequenced, a parent in another case), so without a lookup the form can create a duplicate patient
+    or let a typo through. Things to settle: does the card run the same lookup and dialog? Does a
+    match fill the card's fields (name, DOB, sex)? What if the match is the proband? The wireframe
+    never had this, so nothing is decided.

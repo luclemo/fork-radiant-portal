@@ -6,9 +6,10 @@ import { lookupKey } from './mock/patients';
 import CaseRail, { type Gate } from './rail/case-rail';
 import AnalysisSection from './sections/analysis-section';
 import ClinicalSignsSection from './sections/clinical-signs-section';
+import FamilySection from './sections/family-section';
 import OtherClinicalSection from './sections/other-clinical-section';
 import PatientSection from './sections/patient-section';
-import { type FormState, INITIAL_STATE } from './form-state';
+import { familyProblemCount, type FormState, INITIAL_STATE } from './form-state';
 import { gestAnswered, gestState, todayStr } from './gestational';
 import { useCaseCreationT } from './i18n';
 
@@ -60,6 +61,9 @@ function CaseCreationPage() {
   const update = useCallback((fn: (s: FormState) => FormState) => setState(fn), []);
   const gate = computeGate(state);
 
+  // Missing fields on a family card are marked only once Create has been tried.
+  const [showFamilyErrors, setShowFamilyErrors] = useState(false);
+
   // Rail feedback: one message at a time, gone after 2.4 s.
   const [flash, setFlash] = useState('');
   const flashTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -96,14 +100,28 @@ function CaseCreationPage() {
             <h2 className="text-muted-foreground mt-2 text-sm font-semibold uppercase tracking-wide">
               {t('section.optional_sections')}
             </h2>
-            <SectionCard index={5} titleKey="family" />
+            <SectionCard index={5} titleKey="family">
+              <FamilySection state={state} update={update} showErrors={showFamilyErrors} />
+            </SectionCard>
           </div>
 
           <CaseRail
             state={state}
             gate={gate}
             flash={flash}
-            onCreate={() => flashNote(t(gate.done === gate.total ? 'flash.created' : 'flash.incomplete'))}
+            onCreate={() => {
+              if (gate.done !== gate.total) return flashNote(t('flash.incomplete'));
+              // The core gate is met; cards in the analysis may still miss their own fields.
+              const missing = familyProblemCount(state);
+              if (missing === 0) return flashNote(t('flash.created'));
+              setShowFamilyErrors(true);
+              flashNote(t('flash.family_missing', { count: missing }));
+              requestAnimationFrame(() =>
+                document
+                  .querySelector('[data-family-invalid]')
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
+              );
+            }}
             onDraft={() => flashNote(t('flash.draft'))}
           />
         </div>

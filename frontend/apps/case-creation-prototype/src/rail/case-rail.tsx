@@ -3,11 +3,12 @@ import type { TFunction } from 'i18next';
 
 import AnalysisTypeCodeBadge from '@/components/base/badges/analysis-type-code-badge';
 import PriorityIndicator from '@/components/base/indicators/priority-indicator';
+import { Badge } from '@/components/base/shadcn/badge';
 import { Button } from '@/components/base/shadcn/button';
 import { Card, CardContent } from '@/components/base/shadcn/card';
 import { cn } from '@/components/lib/utils';
 
-import type { FormState } from '../form-state';
+import { type FormState, sequencedCount } from '../form-state';
 import { gestState, todayStr } from '../gestational';
 import { useCaseCreationT } from '../i18n';
 import { ANALYSES } from '../mock/analyses';
@@ -16,6 +17,8 @@ import { conditionLabel } from '../mock/mondo';
 import { ETHNICITIES } from '../mock/options';
 import { lookupKey } from '../mock/patients';
 import ProgressBar from '../stand-ins/progress-bar';
+
+import Pedigree from './pedigree';
 
 export type Gate = { done: number; total: number };
 
@@ -55,6 +58,13 @@ function gestSummary(state: FormState, t: TFunction): [string | undefined, boole
   return [text, !!gest.date && !gest.outOfRange];
 }
 
+/** « Duo » · « Trio » · « Quatuor », then the count. Solo has no label. */
+function compositionLabel(sequenced: number, t: TFunction): string | null {
+  if (sequenced < 2) return null;
+  if (sequenced <= 4) return t(`rail.composition.${sequenced}`);
+  return t('rail.composition.many', { count: sequenced });
+}
+
 function CaseRail({ state, gate, flash, onCreate, onDraft }: Props) {
   const { t, i18n } = useCaseCreationT();
   const lang: Lang = i18n.language.startsWith('fr') ? 'fr' : 'en';
@@ -64,6 +74,15 @@ function CaseRail({ state, gate, flash, onCreate, onDraft }: Props) {
   const idRejected = !!key && state.lookupDecisions[key] === 'rejected';
   const name = [state.firstName.trim(), state.lastName.trim()].filter(Boolean).join(' ');
   const [gestText, gestDone] = gestSummary(state, t);
+  const gest = gestState(state.gestBasis, state.lmpDate, state.eddDate);
+
+  // The batch: the proband plus every card ticked into the analysis. Solo shows nothing — it is the
+  // default, so a badge would say nothing. The named ladder stops at four (duo, trio, quad are the
+  // terms in use); past that, the count itself.
+  const sequenced = sequencedCount(state);
+  const composition = compositionLabel(sequenced, t);
+  // Once a relative is sequenced the DS already has the word for it: the germline_family variant.
+  const caseType = analysis && (analysis.type === 'germline' && sequenced > 1 ? 'germline_family' : analysis.type);
 
   return (
     <Card className="sticky top-6">
@@ -90,11 +109,13 @@ function CaseRail({ state, gate, flash, onCreate, onDraft }: Props) {
         <h3 className="mt-[22px] mb-1 text-sm font-semibold">{t('rail.summary')}</h3>
 
         <Row label={t('rail.analysis')} done={!!analysis}>
-          {analysis && (
+          {(analysis || composition) && (
             <span className="inline-flex items-center gap-1.5">
-              {analysis.code}
-              {/* Solo for now; becomes germline_family once a relative is sequenced (§5). */}
-              <AnalysisTypeCodeBadge code={analysis.type} />
+              {analysis?.code}
+              {caseType && <AnalysisTypeCodeBadge code={caseType} />}
+              {/* The plain badge, so the only colour in the row stays on the case type. It shows even
+                  with no analysis picked: the composition is a fact of the family, not of the analysis. */}
+              {composition && <Badge variant="neutral">{composition}</Badge>}
             </span>
           )}
         </Row>
@@ -167,7 +188,18 @@ function CaseRail({ state, gate, flash, onCreate, onDraft }: Props) {
         <Row label={t('rail.note')} done={!!state.note.trim()}>
           {state.note.trim() ? t('rail.note_added') : undefined}
         </Row>
-        <Row label={t('rail.family')}>{t('rail.members', { count: 0 })}</Row>
+        {/* Counts the cards — every relative reported, in the analysis or not. The composition
+            badge counts the batch instead, and the two disagreeing is correct. */}
+        <Row label={t('rail.family')} done={state.family.length > 0}>
+          {t('rail.members', { count: state.family.length })}
+        </Row>
+        <Pedigree
+          members={state.family}
+          // The proband is the fetus in a prenatal case, so its symbol takes the fetal sex.
+          probandSex={(state.prenatal ? state.fetalSex : state.sex) || 'U'}
+          probandDeceased={state.prenatal && gest?.basis === 'demise'}
+          consanguinity={state.consanguinity === 'consanguinity'}
+        />
       </CardContent>
     </Card>
   );
