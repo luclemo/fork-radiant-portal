@@ -120,164 +120,171 @@ function PatientSection({ state, update }: Props) {
 
   return (
     <>
-      {/* items-end: where labels differ in height, the slack lands above the shorter one. */}
-      <div className="grid grid-cols-2 items-end gap-x-4 gap-y-4">
-        <Field data-invalid={rejected || undefined}>
-          <FieldLabel htmlFor="cc-patient-id">
-            {t('patient.identifier')} <Required />
-          </FieldLabel>
-          {/* Free text, never rendered as HTML. */}
-          <Input
-            id="cc-patient-id"
-            value={state.patientId}
-            aria-invalid={rejected || undefined}
-            onChange={e => update(s => ({ ...s, patientId: e.target.value }))}
-            placeholder={t('patient.identifier_placeholder')}
-          />
-          {/* No message in the cell: it would push this input out of line with its neighbour.
-              The red field plus the row-wide status line below say it once. */}
-        </Field>
-        <Field>
-          <FieldLabel>
-            {t('patient.org')} <Required />
-          </FieldLabel>
-          {/* Required, so no clear row. No default value. */}
-          <Select value={state.patientOrg} onValueChange={v => update(s => ({ ...s, patientOrg: v }))}>
-            <SelectTrigger>
-              <SelectValue placeholder={t('patient.org_placeholder')} />
-            </SelectTrigger>
-            <SelectContent>
-              {ORGS.map(o => (
-                <SelectItem key={o} value={o}>
-                  {o}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-
-        {/* The status line spans the row: inside one cell it would push that control out of line
-            with its neighbour. Fixed height, so the form doesn't jump as it appears. */}
-        <p
-          aria-live="polite"
-          className={cn(
-            'col-span-2 -mt-2.5 -mb-1.5 min-h-4 text-xs leading-4',
-            rejected ? 'text-destructive font-medium' : 'text-muted-foreground',
-          )}
-        >
-          {lookupLine}
-        </p>
-
-        {/* This row starts at the top: the date picker can grow a message under itself, and with
-            items-end that would push RAMQ and Sexe down out of line. Labels here are one line. */}
-        <Field className="self-start">
-          <FieldLabel htmlFor="cc-jhn">{t('patient.jhn')}</FieldLabel>
-          <Input
-            id="cc-jhn"
-            className={flashRing('jhn')}
-            value={state.jhn}
-            onChange={e => update(s => ({ ...s, jhn: e.target.value }))}
-            placeholder={t('patient.jhn_placeholder')}
-          />
-        </Field>
-        {/* DDN and Sexe share one cell: the label shortens to « DDN » and Sexe shows initials,
-            with the full word as tooltip. The date takes what is left. */}
-        <div className="flex items-start gap-4 self-start">
-          <Field className="min-w-0 flex-1">
-            <FieldLabel htmlFor="cc-dob">
-              {t('patient.dob_short')} <Required />
+      <div className="flex flex-col gap-6">
+        {/* The first row carries the lookup status line. It sits in the 24 px gap under the row, so
+            it costs no height and nothing jumps when it appears. */}
+        <div className="relative grid grid-cols-2 items-start gap-x-4">
+          <Field data-invalid={rejected || undefined}>
+            <FieldLabel htmlFor="cc-patient-id">
+              {t('patient.identifier')} <Required />
             </FieldLabel>
-            <DatePicker
-              id="cc-dob"
-              className={cn('rounded-md', flashRing('dob'))}
-              value={state.dob}
-              max={todayStr()}
-              invalid={dobFuture}
-              onChange={v => update(s => ({ ...s, dob: v }))}
+            {/* Free text, never rendered as HTML. */}
+            <Input
+              id="cc-patient-id"
+              size="sm"
+              value={state.patientId}
+              aria-invalid={rejected || undefined}
+              onChange={e => update(s => ({ ...s, patientId: e.target.value }))}
+              placeholder={t('patient.identifier_placeholder')}
             />
-            {dobFuture && <FieldError>{t('patient.err_dob')}</FieldError>}
+            {/* No message in the cell: it would push this input out of line with its neighbour.
+                The red field plus the status line below say it once. */}
           </Field>
-          <Field className="w-auto shrink-0">
+          <Field>
             <FieldLabel>
-              {t('patient.sex')} <Required />
+              {t('patient.org')} <Required />
             </FieldLabel>
-            <RequiredSegments
-              className={cn('rounded-md', flashRing('sex'))}
-              value={state.sex}
-              options={SEXES}
-              label={v => t(`patient.sex_abbr.${v}`)}
-              title={v => t(`patient.sex_full.${v}`)}
-              onChange={v => update(s => ({ ...s, sex: v }))}
-            />
+            {/* Required, so no clear row. No default value. */}
+            <Select value={state.patientOrg} onValueChange={v => update(s => ({ ...s, patientOrg: v }))}>
+              <SelectTrigger size="sm">
+                <SelectValue placeholder={t('patient.org_placeholder')} />
+              </SelectTrigger>
+              <SelectContent>
+                {ORGS.map(o => (
+                  <SelectItem key={o} value={o}>
+                    {o}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
+          <p
+            aria-live="polite"
+            className={cn(
+              'absolute inset-x-0 top-full mt-1 text-xs leading-4',
+              rejected ? 'text-destructive font-medium' : 'text-muted-foreground',
+            )}
+          >
+            {lookupLine}
+          </p>
         </div>
 
-        <Field>
-          <FieldLabel htmlFor="cc-first-name">
-            {t('patient.first_name')} <Required />
-          </FieldLabel>
-          <Input
-            id="cc-first-name"
-            className={flashRing('firstName')}
-            value={state.firstName}
-            onChange={e => update(s => ({ ...s, firstName: e.target.value }))}
-            placeholder={t('patient.first_name')}
-          />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="cc-last-name">
-            {t('patient.last_name')} <Required />
-          </FieldLabel>
-          <Input
-            id="cc-last-name"
-            className={flashRing('lastName')}
-            value={state.lastName}
-            onChange={e => update(s => ({ ...s, lastName: e.target.value }))}
-            placeholder={t('patient.last_name')}
-          />
-        </Field>
-      </div>
-
-      {/* The fetus is the one sequenced; it has no identity, so it gets its facts here, at the end
-          of the mother's section. Unticking « Cas prénatal » clears all of it. */}
-      {state.prenatal && (
-        <div className="border-border mt-4 border-t pt-4">
-          <h3 className="mb-3 text-sm font-semibold">{t('patient.fetal_info')}</h3>
-          <div className="grid grid-cols-2 items-start gap-4">
-            <Field>
+        <div className="grid grid-cols-2 items-start gap-x-4">
+          <Field>
+            <FieldLabel htmlFor="cc-jhn">{t('patient.jhn')}</FieldLabel>
+            <Input
+              id="cc-jhn"
+              size="sm"
+              className={flashRing('jhn')}
+              value={state.jhn}
+              onChange={e => update(s => ({ ...s, jhn: e.target.value }))}
+              placeholder={t('patient.jhn_placeholder')}
+            />
+          </Field>
+          {/* Date of birth and Sex share one cell: Sex shows initials (full word as tooltip) and
+              the date takes what is left — 204 px of 340 in the mock, room for the whole label. */}
+          <div className="flex items-start gap-4">
+            <Field className="min-w-0 flex-1">
+              <FieldLabel htmlFor="cc-dob">
+                {t('patient.dob')} <Required />
+              </FieldLabel>
+              <DatePicker
+                id="cc-dob"
+                className={cn('rounded-md', flashRing('dob'))}
+                value={state.dob}
+                max={todayStr()}
+                invalid={dobFuture}
+                onChange={v => update(s => ({ ...s, dob: v }))}
+              />
+              {dobFuture && <FieldError>{t('patient.err_dob')}</FieldError>}
+            </Field>
+            <Field className="w-auto shrink-0">
               <FieldLabel>
-                {t('patient.fetal_sex')} <Required />
+                {t('patient.sex')} <Required />
               </FieldLabel>
               <RequiredSegments
-                value={state.fetalSex}
-                options={FETAL_SEXES}
-                label={v => t(`patient.fetal_sex_full.${v}`)}
-                onChange={v => update(s => ({ ...s, fetalSex: v }))}
+                className={cn('rounded-md', flashRing('sex'))}
+                value={state.sex}
+                options={SEXES}
+                label={v => t(`patient.sex_abbr.${v}`)}
+                title={v => t(`patient.sex_full.${v}`)}
+                onChange={v => update(s => ({ ...s, sex: v }))}
               />
-            </Field>
-            <Field>
-              <FieldLabel>
-                {t('patient.gest_age')} <Required />
-              </FieldLabel>
-              <RadioGroup
-                value={state.gestBasis ?? ''}
-                onValueChange={v => update(s => setGestBasis(s, v as GestBasis))}
-                className="gap-2.5"
-              >
-                {(['lmp', 'edd', 'demise'] as GestBasis[]).map(b => (
-                  <div key={b} className="flex flex-col gap-2">
-                    <label className="flex cursor-pointer items-center gap-2 text-sm">
-                      <RadioGroupItem value={b} />
-                      {t(`patient.gest_basis.${b}`)}
-                    </label>
-                    {b !== 'demise' && gestDate(b)}
-                  </div>
-                ))}
-              </RadioGroup>
             </Field>
           </div>
         </div>
-      )}
+
+        <div className="grid grid-cols-2 items-start gap-x-4">
+          <Field>
+            <FieldLabel htmlFor="cc-first-name">
+              {t('patient.first_name')} <Required />
+            </FieldLabel>
+            <Input
+              id="cc-first-name"
+              size="sm"
+              className={flashRing('firstName')}
+              value={state.firstName}
+              onChange={e => update(s => ({ ...s, firstName: e.target.value }))}
+              placeholder={t('patient.first_name')}
+            />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="cc-last-name">
+              {t('patient.last_name')} <Required />
+            </FieldLabel>
+            <Input
+              id="cc-last-name"
+              size="sm"
+              className={flashRing('lastName')}
+              value={state.lastName}
+              onChange={e => update(s => ({ ...s, lastName: e.target.value }))}
+              placeholder={t('patient.last_name')}
+            />
+          </Field>
+        </div>
+
+        {/* The fetus is the one sequenced; it has no identity, so it gets its facts here, at the end
+            of the mother's section, under a divider like the prescriber in §1. Unticking « Cas
+            prénatal » clears all of it. */}
+        {state.prenatal && (
+          <div className="border-t pt-6">
+            <h3 className="mb-4 text-sm font-semibold">{t('patient.fetal_info')}</h3>
+            <div className="grid grid-cols-2 items-start gap-4">
+              <Field>
+                <FieldLabel>
+                  {t('patient.fetal_sex')} <Required />
+                </FieldLabel>
+                <RequiredSegments
+                  value={state.fetalSex}
+                  options={FETAL_SEXES}
+                  label={v => t(`patient.fetal_sex_full.${v}`)}
+                  onChange={v => update(s => ({ ...s, fetalSex: v }))}
+                />
+              </Field>
+              <Field>
+                <FieldLabel>
+                  {t('patient.gest_age')} <Required />
+                </FieldLabel>
+                <RadioGroup
+                  value={state.gestBasis ?? ''}
+                  onValueChange={v => update(s => setGestBasis(s, v as GestBasis))}
+                  className="gap-3"
+                >
+                  {(['lmp', 'edd', 'demise'] as GestBasis[]).map(b => (
+                    <div key={b} className="flex flex-col gap-2">
+                      <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
+                        <RadioGroupItem value={b} />
+                        {t(`patient.gest_basis.${b}`)}
+                      </label>
+                      {b !== 'demise' && gestDate(b)}
+                    </div>
+                  ))}
+                </RadioGroup>
+              </Field>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* A found patient is confirmed before any PHI is written — in full, so a human can tell two
           siblings apart. Rejecting says "wrong key": org + identifier is unique, so there is no

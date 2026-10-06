@@ -32,16 +32,16 @@ the form and set behind the scenes. Case type comes from the analysis and shows 
 Five sections, French by default. `*` = in the required gate.
 
 **1 · Analyse** — Analyse\* | Priorité (Routine; **prefilled STAT in a prenatal case**, see
-Prenatal); ☐ **Cas prénatal**; « Étude de recherche » full width (picking a study *is* the consent,
-so there is no separate checkbox); then the prescriber, alone on its line and **carrying no field
-label** — just ☑ « Je suis médecin prescripteur ou responsable », with « Qui demande cette
-analyse » + an input appearing only when unticked.
+Prenatal); ☐ **Cas prénatal** on its own row; « Étude de recherche » full width (picking a study *is*
+the consent, so there is no separate checkbox); then, under a divider, the prescriber: a **switch**
+« Je suis médecin prescripteur ou responsable » carrying no field label, with « Qui demande cette
+analyse » + an input appearing only when switched off.
 
-**2 · Patient (proband)** — Identifiant\* | Établissement du patient\*, the lookup status line
-spanning the row, RAMQ | **DDN\* · Sexe\*** sharing one cell, Prénom\* | Nom\*. The DDN · Sexe pair
-fits one column only because both halves shrink: the label to « DDN » (§2 only — §5 and the patient
-dialog still spell out « Date de naissance »), and Sexe to initials with the full word as tooltip.
-The rail shows the full word, « Féminin » not « F ».
+**2 · Patient (Proband)** — Identifiant\* | Établissement du patient\*, the lookup status line
+under that row, RAMQ | **Date de naissance\* · Sexe\*** sharing one cell, Prénom\* | Nom\*. The pair
+fits one column because Sexe shrinks to initials with the full word as tooltip; the date label stays
+whole (the 2026-10-06 mock gives it 204 px of 340, enough). The rail shows the full word,
+« Féminin » not « F ».
 
 In **prenatal** mode the title becomes « Patient (proband, mère) » and Sexe prefills Féminin. The
 fetus is the one sequenced; this section holds the *mother's* identity only because a fetus has no
@@ -228,8 +228,11 @@ bar · `x sur 7 champs requis`, then 22 px, then « Résumé du cas »:
 
 ### The prescriber
 
-- **One checkbox, no field label.** Default: ☑ « Je suis médecin prescripteur ou responsable »,
-  nothing else. Unticking reveals « Qui demande cette analyse » **and** its input, together.
+- **One switch, no field label.** Default: on, « Je suis médecin prescripteur ou responsable »,
+  nothing else. Switching off reveals « Qui demande cette analyse » **and** its input, together.
+  A switch rather than the checkbox (Lucas's mock, 2026-10-06): it is a mode with a default, and the
+  divider above it sets it apart from the analysis fields. Trade-off: « Cas prénatal » just above is
+  a checkbox, so two booleans use two controls.
 - **Both states feed the one `ordering_physician`** — ticked, the system captures the **current
   user**; unticked, the **typed name**. It derives from the session, not from the page.
 - **« Établissement prescripteur » stays removed.** The prescribing organization will not be
@@ -318,6 +321,22 @@ Where the design system already had an answer, the prototype uses it over the wi
   search and list. It has one value, so a click picks and closes. No draft, no « Appliquer »; the
   current value carries a check.
 - **The note's rail row reads « Ajoutée »** (the wireframe had « Ajouté »), to agree with « note ».
+
+### Content pass (2026-10-06, from Lucas's Figma mock)
+
+- **Every control is 32 px (`size="sm"`)**: inputs, selects, date picker, segmented controls and the
+  Browse button. The DS default is 36. Settles the date-field question in COMPONENT-TODO. The
+  AutoComplete has no size prop, so it is forced to 32 with a class.
+- **Rhythm: 24 px between rows and blocks, 8 px between a label and its control, 16 px between
+  columns.** A divider (`border-t`, then 24 px) opens a group that is a different question: the
+  prescriber in §1, fetal information in §2.
+- **Boolean labels (checkbox, switch) are medium weight**, like field labels.
+- **Priority is a fixed 224 px**, Analysis takes the rest. « Cas prénatal » is its own row.
+- **« Proband » is capitalised in the section title**, as in the mock.
+- **Required asterisks stay**, though the mock omits them (Lucas, 2026-10-06): they are the only
+  inline cue for what gates Create.
+- **Select placeholders are dark, AutoComplete and Input ones muted.** That is the DS today and the
+  mock reproduces it. Not overridden here; worth a DS decision.
 
 ### Section containers (2026-10-06)
 

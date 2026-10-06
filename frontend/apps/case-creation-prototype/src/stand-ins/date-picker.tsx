@@ -105,6 +105,7 @@ function DatePicker({ id, value, onChange, max, fromYear = 1900, invalid, classN
               autoComplete="off"
               placeholder={t('date_picker.placeholder')}
               aria-invalid={invalid || badFormat || undefined}
+              size="sm"
               className="pr-10 tabular-nums"
               onChange={e => commitText(e.target.value)}
               // A finished date is normalized to ISO; anything else left in the field is flagged.

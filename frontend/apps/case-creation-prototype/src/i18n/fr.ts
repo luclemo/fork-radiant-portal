@@ -7,8 +7,8 @@ const fr = {
   },
   section: {
     analysis: 'Analyse',
-    patient: 'Patient (proband)',
-    patient_prenatal: 'Patient (proband, mère)',
+    patient: 'Patient (Proband)',
+    patient_prenatal: 'Patient (Proband, mère)',
     clinical_signs: 'Signes cliniques',
     other_clinical: 'Autres informations cliniques (facultatives)',
     family: 'Famille',
@@ -38,7 +38,6 @@ const fr = {
     jhn: 'RAMQ', // as in the case list
     jhn_placeholder: 'RAMQ (QC) ou NAM régional',
     dob: 'Date de naissance',
-    dob_short: 'DDN', // §2 only: the DDN · Sexe pair shares one column
     sex: 'Sexe',
     sex_abbr: { M: 'M', F: 'F', U: 'I' },
     sex_full: { M: 'Masculin', F: 'Féminin', U: 'Inconnu' }, // as in the app's sex labels

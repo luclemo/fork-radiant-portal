@@ -8,8 +8,8 @@ const en: typeof fr = {
   },
   section: {
     analysis: 'Analysis',
-    patient: 'Patient (proband)',
-    patient_prenatal: 'Patient (proband, mother)',
+    patient: 'Patient (Proband)',
+    patient_prenatal: 'Patient (Proband, mother)',
     clinical_signs: 'Clinical signs',
     other_clinical: 'Other clinical information (optional)',
     family: 'Family',
@@ -39,7 +39,6 @@ const en: typeof fr = {
     jhn: 'RAMQ', // as in the case list
     jhn_placeholder: 'RAMQ (QC) or regional JHN',
     dob: 'Date of birth',
-    dob_short: 'DOB', // §2 only: the DOB · Sex pair shares one column
     sex: 'Sex',
     sex_abbr: { M: 'M', F: 'F', U: 'U' },
     sex_full: { M: 'Male', F: 'Female', U: 'Unknown' },
