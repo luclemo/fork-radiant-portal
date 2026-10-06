@@ -11,7 +11,6 @@ const fr = {
     patient_prenatal: 'Patient (proband, mère)',
     clinical_signs: 'Signes cliniques',
     other_clinical: 'Autres informations cliniques (facultatives)',
-    optional_sections: 'Sections facultatives',
     family: 'Famille',
     placeholder: 'Section à venir',
   },

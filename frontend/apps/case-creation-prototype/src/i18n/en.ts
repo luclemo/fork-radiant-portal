@@ -12,7 +12,6 @@ const en: typeof fr = {
     patient_prenatal: 'Patient (proband, mother)',
     clinical_signs: 'Clinical signs',
     other_clinical: 'Other clinical information (optional)',
-    optional_sections: 'Optional sections',
     family: 'Family',
     placeholder: 'Section coming soon',
   },

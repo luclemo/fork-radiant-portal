@@ -62,7 +62,7 @@ than the list you work through. Rhythm: 12 px under an instruction, 16 px before
 Indication principale (MONDO typeahead + browse); Note clinique. **« Note clinique » keeps its
 label** (2026-09-29) even though it now also carries the diagnosis hypothesis (see Backend).
 
-**5 · Famille** — under « Sections facultatives ». No opt-in checkbox; a standing description
+**5 · Famille** — an optional section (no « Sections facultatives » heading above it since 2026-10-06). No opt-in checkbox; a standing description
 carries the ask, so the section is always open. One card per relative, in two halves: the
 family-history top line (Lien de parenté · Sexe · Statut · Préciser), then ☐ « Inclure dans
 l'analyse génétique », which opens the patient-identification block — because a member in the
@@ -318,6 +318,21 @@ Where the design system already had an answer, the prototype uses it over the wi
   search and list. It has one value, so a click picks and closes. No draft, no « Appliquer »; the
   current value carries a check.
 - **The note's rail row reads « Ajoutée »** (the wireframe had « Ajouté »), to agree with « note ».
+
+### Section containers (2026-10-06)
+
+- **Every section is a DS accordion item**, `type="multiple"`, chevron right, **all open by default**
+  (Lucas, from his Figma). The header is a step circle (§1–§5) + title; no « Réduire / Développer »
+  text and no dashed border when collapsed — the wireframe's device, replaced by the DS chevron and a
+  solid card.
+- **The rail ignores collapse.** It is a summary of the form's *values*, not a map of its sections, so
+  it reads the same whether a section is open or not. That is the point of having it: you can fold a
+  finished section away and still check it. No per-section state in the rail.
+- **Create opens what is missing.** A click that fails the gate opens every section holding an unmet
+  item and scrolls to the first; a family problem opens § Famille. Sections stay open after.
+- **A closed section stays mounted**, so nothing is lost and field lookups still work.
+- Not decided: whether a closed header should carry a status (a check, or « 2 sur 5 »). Add only if
+  review shows people lose track of what they folded away.
 
 ### §5 Famille (hi-fi)
 
