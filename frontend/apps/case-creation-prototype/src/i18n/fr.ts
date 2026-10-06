@@ -1,6 +1,9 @@
 // French is the default language of the form. Every key here has a twin in en.ts.
 // Wording is the wireframe's, unchanged, unless a note says otherwise.
 const fr = {
+  common: {
+    clear: 'Effacer',
+  },
   page: {
     title: 'Nouveau cas',
     prototype_banner: 'Prototype de design — pas du code de production',
@@ -22,7 +25,6 @@ const fr = {
     prenatal: 'Cas prénatal',
     study: 'Étude de recherche (consentement obtenu)',
     study_placeholder: 'Sélectionner une étude…',
-    clear_selection: '↺ Effacer la sélection',
     prescriber_is_me: 'Je suis médecin prescripteur ou responsable',
     prescriber: 'Qui demande cette analyse',
     prescriber_placeholder: 'Nom du médecin',

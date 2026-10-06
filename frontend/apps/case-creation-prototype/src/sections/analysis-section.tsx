@@ -2,17 +2,9 @@ import { useMemo } from 'react';
 
 import { AutoComplete } from '@/components/base/data-entry/auto-complete';
 import PriorityIndicator from '@/components/base/indicators/priority-indicator';
-import { Checkbox } from '@/components/base/shadcn/checkbox';
 import { Field, FieldLabel } from '@/components/base/shadcn/field';
 import { Input } from '@/components/base/shadcn/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/base/shadcn/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/base/shadcn/select';
 import { Switch } from '@/components/base/shadcn/switch';
 import { cn } from '@/components/lib/utils';
 
@@ -22,10 +14,6 @@ import { ANALYSES } from '../mock/analyses';
 import { PRIORITIES, type PriorityCode, STUDIES } from '../mock/options';
 import Required from '../required';
 import { useFlash } from '../use-flash';
-
-// Radix Select cannot hold an empty value, so the clear row uses a sentinel. The design system's
-// Select has no clear of its own — logged in COMPONENT-TODO.md.
-const CLEAR = '__clear__';
 
 type Props = {
   state: FormState;
@@ -65,10 +53,8 @@ function AnalysisSection({ state, update }: Props) {
           <FieldLabel>
             {t('analysis.label')} <Required />
           </FieldLabel>
-          {/* Required, so no clear button. */}
           <AutoComplete
             size="sm"
-            clearable={false}
             chevron
             options={analysisOptions}
             value={state.analysisCode}
@@ -102,11 +88,11 @@ function AnalysisSection({ state, update }: Props) {
       </div>
 
       <Field orientation="horizontal">
-        <Checkbox
+        <Switch
           id="cc-prenatal"
           size="sm"
           checked={state.prenatal}
-          onCheckedChange={on => update(s => setPrenatal(s, on === true))}
+          onCheckedChange={on => update(s => setPrenatal(s, on))}
         />
         <FieldLabel htmlFor="cc-prenatal" className="font-medium">
           {t('analysis.prenatal')}
@@ -116,19 +102,15 @@ function AnalysisSection({ state, update }: Props) {
       {/* Picking a study IS the consent, so there is no separate checkbox. */}
       <Field>
         <FieldLabel>{t('analysis.study')}</FieldLabel>
-        <Select value={state.study} onValueChange={v => update(s => ({ ...s, study: v === CLEAR ? '' : v }))}>
-          <SelectTrigger size="sm">
+        <Select value={state.study} onValueChange={v => update(s => ({ ...s, study: v }))}>
+          <SelectTrigger
+            size="sm"
+            onClear={state.study ? () => update(s => ({ ...s, study: '' })) : undefined}
+            clearLabel={t('common.clear')}
+          >
             <SelectValue placeholder={t('analysis.study_placeholder')} />
           </SelectTrigger>
           <SelectContent>
-            {state.study && (
-              <>
-                <SelectItem value={CLEAR} className="text-muted-foreground">
-                  {t('analysis.clear_selection')}
-                </SelectItem>
-                <SelectSeparator />
-              </>
-            )}
             {STUDIES.map(name => (
               <SelectItem key={name} value={name}>
                 {name}

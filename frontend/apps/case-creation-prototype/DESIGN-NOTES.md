@@ -103,8 +103,8 @@ bar · `x sur 7 champs requis`, then 22 px, then « Résumé du cas »:
 - **Free-text placeholders say what to type**: the prescriber's input asks « Nom du médecin »
   (« Qui demande cette analyse » is its *label*); the names read « Prénom » / « Nom », a bare echo,
   because a name has no format or example to offer.
-- **Every dropdown is clearable** back to its placeholder while filled — **except a required one**,
-  which keeps no clear.
+- **Every dropdown is clearable** back to its placeholder while filled, with a ✕ in the field (see
+  the content pass below).
 - **« Inconnu » is an answer, so the rail inks it.** A value goes dark as soon as the user has
   answered, Unknown included; only the em-dash stays muted. Pré/Postnatal and Priorité ink
   unconditionally — they ship with defaults.
@@ -333,7 +333,10 @@ Where the design system already had an answer, the prototype uses it over the wi
 - **Rhythm: 24 px between rows and blocks, 8 px between a label and its control, 16 px between
   columns.** A divider (`border-t`, then 24 px) opens a group that is a different question: the
   prescriber in §1, fetal information in §2.
-- **Boolean labels (checkbox, switch) are medium weight**, like field labels.
+- **A toggle that opens a block of fields is a switch** (Lucas, 2026-10-06): the prescriber, « Cas
+  prénatal » and « Inclure dans l'analyse génétique ». Checkboxes stay for picking items in a list
+  (the suggested phenotypes). Switching one off clears what it opened, as before.
+- **Boolean labels are medium weight**, like field labels.
 - **Priority is a fixed 224 px**, Analysis takes the rest. « Cas prénatal » is its own row.
 - **« Proband » is capitalised in the section title**, as in the mock.
 - **Required asterisks stay**, though the mock omits them (Lucas, 2026-10-06): they are the only
@@ -349,9 +352,12 @@ Where the design system already had an answer, the prototype uses it over the wi
   The inline result list it replaced pushed the page down and was a third pattern. A term already in
   either list is not offered. Finite lists are the DS `Select`, ethnicities the `MultiSelector`.
 - **Every select has a chevron on the right**, AutoComplete and MultiSelector included.
-- **Clearing**: a required select or autocomplete (analysis, priority, organisation, relation) has no
-  clear. An optional one clears through a « ↺ Effacer la sélection » row at the top of its list while
-  a value is picked, as the research study does — not a ✕ in the field.
+- **Clearing** (Lucas, 2026-10-06, reversing the earlier « required fields have no clear »): **every**
+  select and autocomplete shows a ✕ before its chevron once a value is picked, required or not — an
+  autocomplete without one is miserable to use, and clearing a required field just leaves the gate
+  unmet. No « Clear selection » row in the menus. Exceptions: Priority and Onset always hold a value
+  (Routine, Unknown are answers), so there is nothing to clear to; the HPO search is a box that adds
+  and empties itself.
 - **The priority is drawn with the small indicator** (`size="sm"`) in the select, in the trigger and
   in the list.
 - **The page is `muted`**, the cards stay white, and the prototype banner is white with a rule.

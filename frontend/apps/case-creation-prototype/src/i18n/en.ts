@@ -2,6 +2,9 @@ import type fr from './fr';
 
 // Typed against fr.ts so a key missing from either language fails the type check.
 const en: typeof fr = {
+  common: {
+    clear: 'Clear',
+  },
   page: {
     title: 'New case',
     prototype_banner: 'Design prototype — not production code',
@@ -23,7 +26,6 @@ const en: typeof fr = {
     prenatal: 'Prenatal case',
     study: 'Research study (consent obtained)',
     study_placeholder: 'Select a study…',
-    clear_selection: '↺ Clear selection',
     prescriber_is_me: 'I am the ordering or responsible physician',
     prescriber: 'Who is requesting this analysis',
     prescriber_placeholder: 'Physician’s name',

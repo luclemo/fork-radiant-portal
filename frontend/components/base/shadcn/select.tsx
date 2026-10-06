@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
-import { Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, XIcon } from 'lucide-react';
 import { tv, type VariantProps } from 'tailwind-variants';
 
 import { cn } from '@/lib/utils';
@@ -28,17 +28,40 @@ export const selectTriggerVariants = tv({
   },
 });
 export type SelectTriggerProps = React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> &
-  VariantProps<typeof selectTriggerVariants>;
+  VariantProps<typeof selectTriggerVariants> & {
+    /** Pass it while a value is picked to show a ✕ before the chevron that calls it. */
+    onClear?: () => void;
+    /** Accessible name of the ✕. */
+    clearLabel?: string;
+  };
 
-function SelectTrigger({ className, size, children, ...props }: SelectTriggerProps) {
+function SelectTrigger({ className, size, children, onClear, clearLabel, ...props }: SelectTriggerProps) {
   const style = selectTriggerVariants({ size });
-  return (
-    <SelectPrimitive.Trigger className={style.base({ className })} {...props}>
+  const trigger = (
+    <SelectPrimitive.Trigger
+      className={style.base({ className: cn(onClear && '[&>span]:pr-8', className) })}
+      {...props}
+    >
       {children}
       <SelectPrimitive.Icon asChild>
         <ChevronDown className="h-4 w-4 shrink-0" />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
+  );
+  if (!onClear) return trigger;
+  // The ✕ is a sibling of the trigger, not a child: a button inside a button is invalid.
+  return (
+    <div className="relative w-full">
+      {trigger}
+      <button
+        type="button"
+        aria-label={clearLabel}
+        onClick={onClear}
+        className="text-muted-foreground hover:text-foreground absolute top-1/2 right-9 -translate-y-1/2 cursor-pointer"
+      >
+        <XIcon size={16} />
+      </button>
+    </div>
   );
 }
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;

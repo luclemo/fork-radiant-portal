@@ -18,9 +18,6 @@ import AnthologyCode from '../stand-ins/anthology-code';
 import MondoBrowser from '../stand-ins/mondo-browser';
 import { useFlash } from '../use-flash';
 
-// The clear row's value: a real option, so the list can offer it (same device as the study select in §1).
-const CLEAR = '__clear__';
-
 type Props = {
   state: FormState;
   update: (fn: (s: FormState) => FormState) => void;
@@ -70,18 +67,8 @@ function OtherClinicalSection({ state, update }: Props) {
 
   // Memoized per language: AutoComplete re-syncs its input whenever the options change identity.
   const conditionOptions = useMemo(
-    () => [
-      ...(state.condition
-        ? [
-            {
-              value: CLEAR,
-              display: '',
-              filter: '',
-              label: <span className="text-muted-foreground">{t('analysis.clear_selection')}</span>,
-            },
-          ]
-        : []),
-      ...conditionsSorted(lang).map(c => ({
+    () =>
+      conditionsSorted(lang).map(c => ({
         value: c.id,
         display: conditionDisplay(c.id, lang),
         // Raw and folded, so the DS search (accent-sensitive, COMPONENT-TODO) still finds
@@ -94,8 +81,7 @@ function OtherClinicalSection({ state, update }: Props) {
           </span>
         ),
       })),
-    ],
-    [lang, state.condition, t],
+    [lang],
   );
 
   const ethnicityOptions = useMemo(() => ETHNICITIES.map(e => ({ value: e.code, label: e[lang] })), [lang]);
@@ -162,16 +148,13 @@ function OtherClinicalSection({ state, update }: Props) {
         <FieldLabel>{t('other.condition')}</FieldLabel>
         <div className="flex gap-4">
           <div className={cn('min-w-0 flex-1 rounded-md transition-shadow', conditionFlash && 'ring-ring ring-2')}>
-            {/* Optional, so it clears the way the research study does: a « Clear selection » row at the
-                top of the list while a value is picked, not a ✕. */}
             <AutoComplete
               key={conditionKey}
               size="sm"
-              clearable={false}
               chevron
               options={conditionOptions}
               value={conditionShown}
-              onChange={id => update(s => ({ ...s, condition: id === CLEAR ? '' : id }))}
+              onChange={id => update(s => ({ ...s, condition: id }))}
               placeholder={t('other.condition_placeholder')}
               emptyIndicator={<div className="text-center text-sm">{t('analysis.no_match')}</div>}
               optionFilterProp="filter"

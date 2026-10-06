@@ -1,10 +1,10 @@
 import { PlusIcon, XIcon } from 'lucide-react';
 
 import { Button } from '@/components/base/shadcn/button';
-import { Checkbox } from '@/components/base/shadcn/checkbox';
 import { Field, FieldError, FieldLabel } from '@/components/base/shadcn/field';
 import { Input } from '@/components/base/shadcn/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/base/shadcn/select';
+import { Switch } from '@/components/base/shadcn/switch';
 import { cn } from '@/components/lib/utils';
 
 import {
@@ -113,7 +113,12 @@ function MemberCard({
           </FieldLabel>
           {/* Required, so no clear row. A parent already on another card can't be picked twice. */}
           <Select value={m.relation} onValueChange={v => update(s => setMemberRelation(s, m.uid, v as RelationCode))}>
-            <SelectTrigger size="sm" aria-invalid={bad('relation') || undefined}>
+            <SelectTrigger
+              size="sm"
+              aria-invalid={bad('relation') || undefined}
+              onClear={m.relation ? () => update(s => setMemberRelation(s, m.uid, '')) : undefined}
+              clearLabel={t('common.clear')}
+            >
               <SelectValue placeholder={t('family.relation_placeholder')} />
             </SelectTrigger>
             <SelectContent>
@@ -166,11 +171,11 @@ function MemberCard({
       </div>
 
       <Field orientation="horizontal" className="mt-4">
-        <Checkbox
+        <Switch
           id={fid('in-analysis')}
           size="sm"
           checked={m.inAnalysis}
-          onCheckedChange={on => update(s => setMemberInAnalysis(s, m.uid, on === true))}
+          onCheckedChange={on => update(s => setMemberInAnalysis(s, m.uid, on))}
         />
         <FieldLabel htmlFor={fid('in-analysis')} className="font-medium">
           {t('family.in_analysis')}
@@ -206,7 +211,12 @@ function MemberCard({
                 </FieldLabel>
                 {/* Follows the proband's organization until the user picks another. */}
                 <Select value={memberOrg(state, m)} onValueChange={v => set('org', v)}>
-                  <SelectTrigger size="sm" aria-invalid={bad('org') || undefined}>
+                  <SelectTrigger
+                    size="sm"
+                    aria-invalid={bad('org') || undefined}
+                    onClear={memberOrg(state, m) ? () => set('org', '') : undefined}
+                    clearLabel={t('common.clear')}
+                  >
                     <SelectValue placeholder={t('patient.org_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
