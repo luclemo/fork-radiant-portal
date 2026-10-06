@@ -113,7 +113,7 @@ function MemberCard({
           </FieldLabel>
           {/* Required, so no clear row. A parent already on another card can't be picked twice. */}
           <Select value={m.relation} onValueChange={v => update(s => setMemberRelation(s, m.uid, v as RelationCode))}>
-            <SelectTrigger aria-invalid={bad('relation') || undefined}>
+            <SelectTrigger size="sm" aria-invalid={bad('relation') || undefined}>
               <SelectValue placeholder={t('family.relation_placeholder')} />
             </SelectTrigger>
             <SelectContent>
@@ -156,6 +156,7 @@ function MemberCard({
         <Field>
           <FieldLabel htmlFor={fid('note')}>{t('family.note')}</FieldLabel>
           <Input
+            size="sm"
             id={fid('note')}
             value={m.note}
             onChange={e => set('note', e.target.value)}
@@ -164,13 +165,14 @@ function MemberCard({
         </Field>
       </div>
 
-      <Field orientation="horizontal" className="mt-3">
+      <Field orientation="horizontal" className="mt-4">
         <Checkbox
           id={fid('in-analysis')}
+          size="sm"
           checked={m.inAnalysis}
           onCheckedChange={on => update(s => setMemberInAnalysis(s, m.uid, on === true))}
         />
-        <FieldLabel htmlFor={fid('in-analysis')} className="font-normal">
+        <FieldLabel htmlFor={fid('in-analysis')} className="font-medium">
           {t('family.in_analysis')}
         </FieldLabel>
       </Field>
@@ -178,17 +180,18 @@ function MemberCard({
       {/* A member in the analysis becomes a Patient, so it is identified like the proband (sex is
           already on the line above). The block empties itself when closed. */}
       {m.inAnalysis && (
-        <div className="border-border mt-3 border-t border-dashed pt-3">
+        <div className="mt-4 border-t pt-4">
           {mirrored ? (
             // Stated, not re-asked: §2 already holds her identity. The inputs stay empty and hidden.
             <PatientRecordLine state={state} />
           ) : (
-            <div className="grid grid-cols-2 items-start gap-x-4 gap-y-4">
+            <div className="grid grid-cols-2 items-start gap-4">
               <Field data-invalid={bad('identifier') || undefined}>
                 <FieldLabel htmlFor={fid('id')}>
                   {t('patient.identifier')} <Required />
                 </FieldLabel>
                 <Input
+                  size="sm"
                   id={fid('id')}
                   value={m.identifier}
                   aria-invalid={bad('identifier') || undefined}
@@ -203,7 +206,7 @@ function MemberCard({
                 </FieldLabel>
                 {/* Follows the proband's organization until the user picks another. */}
                 <Select value={memberOrg(state, m)} onValueChange={v => set('org', v)}>
-                  <SelectTrigger aria-invalid={bad('org') || undefined}>
+                  <SelectTrigger size="sm" aria-invalid={bad('org') || undefined}>
                     <SelectValue placeholder={t('patient.org_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
@@ -219,6 +222,7 @@ function MemberCard({
               <Field>
                 <FieldLabel htmlFor={fid('jhn')}>{t('patient.jhn')}</FieldLabel>
                 <Input
+                  size="sm"
                   id={fid('jhn')}
                   value={m.jhn}
                   onChange={e => set('jhn', e.target.value)}
@@ -247,6 +251,7 @@ function MemberCard({
                   {t('patient.first_name')} <Required />
                 </FieldLabel>
                 <Input
+                  size="sm"
                   id={fid('first')}
                   value={m.firstName}
                   aria-invalid={bad('firstName') || undefined}
@@ -260,6 +265,7 @@ function MemberCard({
                   {t('patient.last_name')} <Required />
                 </FieldLabel>
                 <Input
+                  size="sm"
                   id={fid('last')}
                   value={m.lastName}
                   aria-invalid={bad('lastName') || undefined}
@@ -279,13 +285,18 @@ function MemberCard({
 function FamilySection({ state, update, showErrors }: Props) {
   const { t } = useCaseCreationT();
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       {/* No opt-in checkbox: a standing description carries the ask, so the section is always open. */}
       <p className="text-muted-foreground text-sm">{t('family.instruction')}</p>
-      {state.family.map(m => (
-        <MemberCard key={m.uid} state={state} update={update} member={m} showErrors={showErrors} />
-      ))}
-      <Button variant="outline" className="self-start" onClick={() => update(addMember)}>
+      {/* Cards are containers inside a container, so they step the rhythm down: 16 px, not 24. */}
+      {state.family.length > 0 && (
+        <div className="flex flex-col gap-4">
+          {state.family.map(m => (
+            <MemberCard key={m.uid} state={state} update={update} member={m} showErrors={showErrors} />
+          ))}
+        </div>
+      )}
+      <Button variant="outline" size="sm" className="self-start" onClick={() => update(addMember)}>
         <PlusIcon />
         {t('family.add')}
       </Button>

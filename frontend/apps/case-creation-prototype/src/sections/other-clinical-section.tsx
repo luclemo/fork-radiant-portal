@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ListTreeIcon } from 'lucide-react';
+import { BookOpenTextIcon } from 'lucide-react';
 
 import { AutoComplete } from '@/components/base/data-entry/auto-complete';
 import MultiSelector from '@/components/base/data-entry/multi-selector/multi-selector';
@@ -14,6 +14,7 @@ import { useCaseCreationT } from '../i18n';
 import { fold, type Lang } from '../mock/hpo';
 import { conditionDisplay, conditionHay, conditionsSorted, derivedCondition, UNDIAGNOSED } from '../mock/mondo';
 import { CONSANGUINITY, type ConsanguinityCode, ETHNICITIES } from '../mock/options';
+import AnthologyCode from '../stand-ins/anthology-code';
 import MondoBrowser from '../stand-ins/mondo-browser';
 import { useFlash } from '../use-flash';
 
@@ -76,7 +77,7 @@ function OtherClinicalSection({ state, update }: Props) {
         label: (
           <span className="flex w-full items-baseline justify-between gap-3">
             <span>{c[lang]}</span>
-            {c.id !== UNDIAGNOSED && <span className="text-muted-foreground shrink-0 font-mono text-xs">{c.id}</span>}
+            {c.id !== UNDIAGNOSED && <AnthologyCode className="shrink-0">{c.id}</AnthologyCode>}
           </span>
         ),
       })),
@@ -95,7 +96,7 @@ function OtherClinicalSection({ state, update }: Props) {
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 items-start gap-4">
         <Field>
           <FieldLabel>{t('other.consanguinity')}</FieldLabel>
@@ -104,6 +105,7 @@ function OtherClinicalSection({ state, update }: Props) {
           <ToggleGroup
             type="single"
             variant="outline"
+            size="sm"
             spacing={0}
             value={state.consanguinity}
             onValueChange={v => update(s => ({ ...s, consanguinity: v as ConsanguinityCode | '' }))}
@@ -132,6 +134,9 @@ function OtherClinicalSection({ state, update }: Props) {
               filter: (code, search) => (ethnicityHay[code]?.includes(fold(search.trim())) ? 1 : 0),
             }}
             openOnFocus
+            // 32 px like the other controls; the DS wrapper is min 36 (COMPONENT-TODO).
+            className={cn('min-h-8', state.ethnicities.length > 0 && 'py-1')}
+            inputProps={{ className: 'py-1' }}
             multiline
             hidePlaceholderWhenSelected
           />
@@ -142,9 +147,11 @@ function OtherClinicalSection({ state, update }: Props) {
           the field, then a browse button. */}
       <Field>
         <FieldLabel>{t('other.condition')}</FieldLabel>
-        <div className="flex gap-2">
+        <div className="flex gap-4">
           <div className={cn('min-w-0 flex-1 rounded-md transition-shadow', conditionFlash && 'ring-ring ring-2')}>
+            {/* 32 px like every other control: AutoComplete has no size prop (COMPONENT-TODO). */}
             <AutoComplete
+              className="[&_[cmdk-input-wrapper]]:h-8"
               key={conditionKey}
               options={conditionOptions}
               value={conditionShown}
@@ -156,8 +163,8 @@ function OtherClinicalSection({ state, update }: Props) {
               debounceDelay={0}
             />
           </div>
-          <Button variant="outline" onClick={() => setBrowsing(true)}>
-            <ListTreeIcon />
+          <Button variant="outline" size="sm" className="w-56 shrink-0" onClick={() => setBrowsing(true)}>
+            <BookOpenTextIcon />
             {t('other.browse_mondo')}
           </Button>
         </div>

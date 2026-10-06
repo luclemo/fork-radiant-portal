@@ -17,7 +17,7 @@ Status: **needs design** → **designed** (Figma link) → **stand-in built** �
 | Tree browser with checkboxes | HPO browser (§3), MONDO browser (§4) | needs design · stand-in built | — | No tree component at all. Stand-ins: `src/stand-ins/hpo-browser.tsx` (DS Dialog + Checkbox, chevron buttons, lazy rows, search with the path to each match) and `mondo-browser.tsx` (flat, single pick), sharing `browser-shell.tsx`. Needs: indent, caret, a node that sits under several parents, a locked row, and a single-pick mode. |
 | Pedigree | Rail | designed · stand-in built | [Pedigree component set](https://www.figma.com/design/Y0l9SoMCYlTQZxce3NzZiK/Radiant-ui-kit---shadcn---January-2025?node-id=24830-9173) | Stand-ins: `src/rail/pedigree.tsx` (lines and layout, which are new) and `src/stand-ins/pedigree-proband-symbol.tsx` (the Figma proband symbol, traced from its vectors). Relatives use the code icons (`base/icons/pedigree-*`). See « Pedigree: Figma and code icons » below. |
 | Step Count | Section header number (§1–§5) | designed · stand-in built | [Components section](https://www.figma.com/design/G7MHa8tTIkNJF5baAZU4AD/Case-Create?node-id=12035-18322) | 28 px circle, muted fill, 1 px border, mono number 14 px medium. Figma uses Geist Mono, which the app doesn't ship: the stand-in uses `font-mono`. Stand-in: `src/stand-ins/step-count.tsx`. Add to Storybook. |
-| Anthology Code | Ids in lists: HP:…, MONDO:… (§3, §4, browsers) | designed · not applied yet | [Components section](https://www.figma.com/design/G7MHa8tTIkNJF5baAZU4AD/Case-Create?node-id=12035-18322) | Mono 12/16, muted text. Today's rows use `font-mono text-xs text-muted-foreground`. Apply with the content pass, then add to Storybook. |
+| Anthology Code | Ids in lists: HP:…, MONDO:… (§3, §4, browsers) | designed · stand-in built | [Components section](https://www.figma.com/design/G7MHa8tTIkNJF5baAZU4AD/Case-Create?node-id=12035-18322) | Mono 12/16, muted text. Stand-in: `src/stand-ins/anthology-code.tsx`, used in §3, §4 and both browsers. Same Geist Mono caveat as Step Count. Add to Storybook. |
 
 ## Accordion as section card
 
@@ -46,6 +46,11 @@ No change to the component. Overrides, all in `SectionCard` (`src/case-creation-
 | AutoComplete | Ignores a value cleared from outside: it keeps showing the old pick. The prototype remounts it when the analysis clears the indication | open |
 | AutoComplete, MultiSelector (cmdk) | Two on one page fight over focus. When one changes its text or selection while the cursor is in another, cmdk moves the cursor into it. The prototype holds the indication back until focus leaves the analysis field | open |
 | MultiSelector | Its menu doesn't follow a change of language when given only `defaultOptions`; passing `options` too fixes it. Chips follow option order, not pick order | open |
+| AutoComplete | No `size` prop: its wrapper is a fixed 36 px, while the mock uses 32 everywhere. The prototype forces 32 with `[&_[cmdk-input-wrapper]]:h-8` | open |
+| MultiSelector | Same: `min-h-9` on the wrapper and `py-2` on its input. The prototype overrides both (`className`, `inputProps`) | open |
+| FieldSeparator (`base/shadcn/field.tsx`) | Label is always centred, and the root carries `-my-2` for its own FieldGroup. The mock's separator has its label on the left. Stand-in: `src/stand-ins/group-separator.tsx` | open |
+| Select vs AutoComplete / Input | A Select's placeholder is drawn in the foreground colour (`data-placeholder:text-foreground`), the others' in muted. The mock reproduces it. Decide which is right | open |
+| Table | The mock's table has a 32 px header and 40 px rows with no vertical rules. Reached with class overrides (`[&>thead>tr>th]:h-8`, `variant="ghost"` on heads); a `size="sm"` / `dense` table variant would do it cleanly | open |
 | Search match highlight | No shared component. The prototype bolds the match (`src/stand-ins/highlight.tsx`), accent-insensitive, like the backend's `<strong>` | open |
 
 ## Pedigree: Figma and code icons
@@ -77,9 +82,7 @@ doesn't use them yet.
 - **Date shown and typed as `yyyy-mm-dd`**, not « Jan 10, 2025 » as in Figma. That is the app's
   date format in both languages (`common.date.year_month_day`), and it types the same in French and
   English. The field also takes `20190308` and normalizes it when you leave the field.
-- **Height: Figma's field is 32 px, the DS Input default is 36 px.** The prototype keeps 36 px so
-  the date lines up with the inputs beside it. Worth settling in the kit: is the Figma input 32 px
-  everywhere (the DS Input's `sm`)?
+- **Height: 32 px** (the DS Input's `sm`), settled by the 2026-10-06 mock: every form control is 32.
 - **The calendar opens under the field, aligned to its left edge**, not under the button. The DS
   Popover doesn't export Radix's `Anchor`, so the prototype imports it from Radix directly.
 - **Week starts on Sunday** in both languages (date-fns `fr-CA` / `en-CA`), as in Figma.

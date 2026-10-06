@@ -68,7 +68,7 @@ const fr = {
   },
   signs: {
     instruction: 'Sélectionnez au moins un phénotype OBSERVÉ avec son âge d’apparition',
-    search_placeholder: 'Rechercher un phénotype (nom ou HP:…)',
+    search_placeholder: 'Rechercher par nom de phénotype ou code HP',
     clear_search: 'Effacer la recherche',
     search_min: 'Saisissez au moins 2 caractères.',
     no_results: 'Aucun terme correspondant.',
@@ -101,7 +101,7 @@ const fr = {
     ethnicities: 'Ethnicité(s)',
     ethnicities_placeholder: 'Sélectionner des ethnicités…',
     condition: 'Indication principale (MONDO)',
-    condition_placeholder: 'Rechercher une indication (nom ou MONDO:…)',
+    condition_placeholder: 'Rechercher par nom d’indication ou code MONDO',
     browse_mondo: 'Parcourir l’arbre MONDO',
     note: 'Note clinique',
     note_placeholder:

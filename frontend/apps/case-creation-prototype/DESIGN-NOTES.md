@@ -50,13 +50,15 @@ the end of the section: Sexe (fœtus), then Âge gestationnel as DDM / DPA / Fœ
 directly under the option that asks for it** (the option is the label) with the derived age to its
 right.
 
-**3 · Signes cliniques** — the ask, the search row (HPO search + tree button) **pinned directly
-under it**, then « Phénotypes observés (n) » and « Suggestions » — one column, 5 shown, « Afficher
-n de plus ». Every row is the same checklist row: checkbox, term, HP id, and an onset menu once
-ticked (observed only). Below a rule, the not-observed half: picks as dismissable badges and one
-button opening the HPO browser — no checkbox, no inline search, because it is a short aside rather
-than the list you work through. Rhythm: 12 px under an instruction, 16 px before a sub-heading,
-6 px under one.
+**3 · Signes cliniques** — the ask is the label of the search field (HPO search + « Parcourir l'arbre
+HPO »), **pinned directly under it**. Then, as they exist: « Phénotypes observés (n) » as a **table**
+(name + HP id · onset menu · ✕), then « Suggestions » (one column, 5 shown, « Afficher n de plus »)
+and « Phénotypes non observés (n) » (picks as dismissable badges and one button opening the HPO
+browser — no checkbox, no inline search, because it is a short aside rather than the list you work
+through). A suggestion or search result is a checkbox row; ticking it sends it up into the table.
+Groups are told apart by a hairline with its label on the left; with no not-observed picks the line
+is bare and closes the section. Rhythm: 24 px between blocks, 8 px under a separator, 2 px between
+rows.
 
 **4 · Autres informations cliniques (facultatives)** — Consanguinité | Ethnicité(s) (chips);
 Indication principale (MONDO typeahead + browse); Note clinique. **« Note clinique » keeps its
@@ -109,10 +111,10 @@ bar · `x sur 7 champs requis`, then 22 px, then « Résumé du cas »:
 - **The indication field is a typeahead, not a select.** Free text is never a value: on blur the
   real label comes back.
 - **Ethnicity is the one multi-valued control**, painted as removable chips.
-- **One way a phenotype is drawn**: the same checklist row everywhere an observed term appears.
-  Selection is the row's own ticked state — a term is dropped by unticking it, no ✓/✗ marker and no
-  row ✕. A not-observed pick is a pill with a ✕. A picked term never appears twice: it leaves the
-  suggestions for the picked list.
+- **A phenotype is drawn two ways, by state** (2026-10-06, replacing « one checklist row »): not
+  picked, a checkbox row (suggestion, search result); picked, a row of the observed table with its
+  onset and a ✕. A not-observed pick is a pill with a ✕. A picked term never appears twice: it leaves
+  the suggestions for the table.
 - **Only the observed list has an inline search.**
 - **Not-observed badges are deliberately not struck through** — the heading already says these were
   looked for and absent; strikethrough reads as "removed from the list".
@@ -140,8 +142,8 @@ bar · `x sur 7 champs requis`, then 22 px, then « Résumé du cas »:
   on purpose. The HP id matches in both.
 - **The MONDO browser is a shell** — with no hierarchy on disk it lists the catalog's conditions
   flat and says so on screen.
-- **Long HPO labels wrap** rather than truncate, except on a row showing its onset menu, where the
-  name ellipsizes with the full term in its tooltip.
+- **Long HPO labels wrap** rather than truncate, except in the observed table, where the name
+  ellipsizes so the onset menu keeps its place, with the full term in its tooltip.
 
 ### The patient and the lookup
 
@@ -285,9 +287,10 @@ Where the design system already had an answer, the prototype uses it over the wi
 - **The date of birth is capped at today** (new in the hi-fi). Future days are disabled in the
   calendar. A typed future date is marked with a message, its rail row stays muted and it doesn't
   count toward the gate, the same treatment as DDM / DPA out of range. Those bounds are unchanged.
-- **§3 rows are the DS `Checkbox` + term + HP id, and a DS `Select` (xs, 28 px) for the onset**
-  (2026-10-04). A new observed term starts at « Inconnu ». The ellipsized name's full term is a DS
-  `Tooltip`, not a browser title.
+- **§3 is the DS `Table` with overrides** (2026-10-06, Lucas's mock): header 32 px, rows 40 px
+  with no vertical rules, onset a DS `Select` at 24 px (`xxs`), the row ✕ a ghost icon button
+  (`2xs`). Names are medium weight, the id an « Anthology Code » (mono 12/16, muted). A new observed
+  term starts at « Inconnu ». The ellipsized name's full term is a DS `Tooltip`.
 - **A search match is shown in bold**, as the app's own term autocomplete does (the backend wraps
   it in `<strong>`). The wireframe used a grey tint. Same in the HPO browser.
 - **Not-observed picks are the DS closable `Badge`, `neutral`, default size** (Lucas, 2026-10-04),
@@ -335,6 +338,11 @@ Where the design system already had an answer, the prototype uses it over the wi
 - **« Proband » is capitalised in the section title**, as in the mock.
 - **Required asterisks stay**, though the mock omits them (Lucas, 2026-10-06): they are the only
   inline cue for what gates Create.
+- **Browse buttons use the book icon** (`BookOpenText`) and a fixed 224 px, at the end of the search
+  row in §3 and §4. Search placeholders say what they take: « Search by phenotype name or HP code »,
+  and the same for the indication. The mock writes « Study Code »; the prototype keeps sentence case.
+- **§5 cards step the rhythm down** (16 px inside a card, 16 between cards): a container inside a
+  container. The wireframe's dashed divider became a solid hairline, as everywhere else.
 - **Select placeholders are dark, AutoComplete and Input ones muted.** That is the DS today and the
   mock reproduces it. Not overridden here; worth a DS decision.
 

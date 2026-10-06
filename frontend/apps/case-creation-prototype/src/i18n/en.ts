@@ -69,7 +69,7 @@ const en: typeof fr = {
   },
   signs: {
     instruction: 'Select at least one OBSERVED phenotype with its onset',
-    search_placeholder: 'Search a phenotype (name or HP:…)',
+    search_placeholder: 'Search by phenotype name or HP code',
     clear_search: 'Clear the search',
     search_min: 'Type at least 2 characters.',
     no_results: 'No matching term.',
@@ -102,7 +102,7 @@ const en: typeof fr = {
     ethnicities: 'Ethnicities',
     ethnicities_placeholder: 'Select ethnicities…',
     condition: 'Primary indication (MONDO)',
-    condition_placeholder: 'Search an indication (name or MONDO:…)',
+    condition_placeholder: 'Search by indication name or MONDO code',
     browse_mondo: 'Browse the MONDO tree',
     note: 'Clinical note',
     note_placeholder:

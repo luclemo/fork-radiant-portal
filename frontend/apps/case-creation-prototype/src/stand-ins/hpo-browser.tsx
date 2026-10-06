@@ -8,6 +8,7 @@ import { cn } from '@/components/lib/utils';
 import { useCaseCreationT } from '../i18n';
 import { byLabel, fold, HPO_BY_ID, HPO_LIST, type Lang, termLabel, TREE_ROOT } from '../mock/hpo';
 
+import AnthologyCode from './anthology-code';
 import BrowserShell from './browser-shell';
 import Highlight from './highlight';
 
@@ -131,7 +132,7 @@ function HpoBrowser({ target, lang, picked, locked, onApply, onCancel }: Props) 
             <span className="mr-1.5">
               <Highlight text={termLabel(id, lang)} query={searching ? q : undefined} />
             </span>
-            <span className="text-muted-foreground font-mono text-xs">{id}</span>
+            <AnthologyCode>{id}</AnthologyCode>
           </span>
         </label>
       </div>,

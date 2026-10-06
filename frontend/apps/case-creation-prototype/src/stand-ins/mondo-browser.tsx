@@ -8,6 +8,7 @@ import { useCaseCreationT } from '../i18n';
 import { fold, type Lang } from '../mock/hpo';
 import { conditionLabel, conditionsSorted, UNDIAGNOSED } from '../mock/mondo';
 
+import AnthologyCode from './anthology-code';
 import BrowserShell from './browser-shell';
 import Highlight from './highlight';
 
@@ -69,9 +70,9 @@ function MondoBrowser({ open, lang, value, onPick, onCancel }: Props) {
               <Highlight text={conditionLabel(c.id, lang)} query={q || undefined} />
             </span>
             {c.id !== UNDIAGNOSED && (
-              <span className="text-muted-foreground font-mono text-xs">
+              <AnthologyCode>
                 <Highlight text={c.id} query={q || undefined} />
-              </span>
+              </AnthologyCode>
             )}
           </span>
           {c.id === value && <CheckIcon className="mt-1 size-4 shrink-0" aria-label={t('mondo_browser.current')} />}
