@@ -69,10 +69,8 @@ const fr = {
   signs: {
     instruction: 'Sélectionnez au moins un phénotype OBSERVÉ avec son âge d’apparition',
     search_placeholder: 'Rechercher par nom de phénotype ou code HP',
-    clear_search: 'Effacer la recherche',
     search_min: 'Saisissez au moins 2 caractères.',
     no_results: 'Aucun terme correspondant.',
-    more_results: 'Affichage des {{count}} premiers — précisez votre recherche.',
     browse: 'Parcourir l’arbre HPO',
     observed: 'Phénotypes observés',
     suggestions: 'Suggestions pour cette analyse',

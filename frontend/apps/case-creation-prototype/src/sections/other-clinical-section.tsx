@@ -18,6 +18,9 @@ import AnthologyCode from '../stand-ins/anthology-code';
 import MondoBrowser from '../stand-ins/mondo-browser';
 import { useFlash } from '../use-flash';
 
+// The clear row's value: a real option, so the list can offer it (same device as the study select in §1).
+const CLEAR = '__clear__';
+
 type Props = {
   state: FormState;
   update: (fn: (s: FormState) => FormState) => void;
@@ -67,21 +70,32 @@ function OtherClinicalSection({ state, update }: Props) {
 
   // Memoized per language: AutoComplete re-syncs its input whenever the options change identity.
   const conditionOptions = useMemo(
-    () =>
-      conditionsSorted(lang).map(c => ({
+    () => [
+      ...(state.condition
+        ? [
+            {
+              value: CLEAR,
+              display: '',
+              filter: '',
+              label: <span className="text-muted-foreground">{t('analysis.clear_selection')}</span>,
+            },
+          ]
+        : []),
+      ...conditionsSorted(lang).map(c => ({
         value: c.id,
         display: conditionDisplay(c.id, lang),
         // Raw and folded, so the DS search (accent-sensitive, COMPONENT-TODO) still finds
         // « epilepsie » — and the code, so « MONDO:0005 » works too.
         filter: conditionHay(c, lang).toLowerCase(),
         label: (
-          <span className="flex w-full items-baseline justify-between gap-3">
-            <span>{c[lang]}</span>
-            {c.id !== UNDIAGNOSED && <AnthologyCode className="shrink-0">{c.id}</AnthologyCode>}
+          <span>
+            {c[lang]}
+            {c.id !== UNDIAGNOSED && <AnthologyCode className="ml-1.5">{c.id}</AnthologyCode>}
           </span>
         ),
       })),
-    [lang],
+    ],
+    [lang, state.condition, t],
   );
 
   const ethnicityOptions = useMemo(() => ETHNICITIES.map(e => ({ value: e.code, label: e[lang] })), [lang]);
@@ -134,9 +148,8 @@ function OtherClinicalSection({ state, update }: Props) {
               filter: (code, search) => (ethnicityHay[code]?.includes(fold(search.trim())) ? 1 : 0),
             }}
             openOnFocus
-            // 32 px like the other controls; the DS wrapper is min 36 (COMPONENT-TODO).
-            className={cn('min-h-8', state.ethnicities.length > 0 && 'py-1')}
-            inputProps={{ className: 'py-1' }}
+            size="sm"
+            chevron
             multiline
             hidePlaceholderWhenSelected
           />
@@ -149,13 +162,16 @@ function OtherClinicalSection({ state, update }: Props) {
         <FieldLabel>{t('other.condition')}</FieldLabel>
         <div className="flex gap-4">
           <div className={cn('min-w-0 flex-1 rounded-md transition-shadow', conditionFlash && 'ring-ring ring-2')}>
-            {/* 32 px like every other control: AutoComplete has no size prop (COMPONENT-TODO). */}
+            {/* Optional, so it clears the way the research study does: a « Clear selection » row at the
+                top of the list while a value is picked, not a ✕. */}
             <AutoComplete
-              className="[&_[cmdk-input-wrapper]]:h-8"
               key={conditionKey}
+              size="sm"
+              clearable={false}
+              chevron
               options={conditionOptions}
               value={conditionShown}
-              onChange={id => update(s => ({ ...s, condition: id }))}
+              onChange={id => update(s => ({ ...s, condition: id === CLEAR ? '' : id }))}
               placeholder={t('other.condition_placeholder')}
               emptyIndicator={<div className="text-center text-sm">{t('analysis.no_match')}</div>}
               optionFilterProp="filter"

@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
 import { type KeyboardEvent, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Command as CommandPrimitive } from 'cmdk';
-import { Check, XIcon } from 'lucide-react';
+import { Check, ChevronDown, XIcon } from 'lucide-react';
 
 import { Badge } from '@/components/base/shadcn/badge';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/base/shadcn/command';
@@ -41,6 +41,8 @@ function MultiSelector({
   hideClearAllButton = false,
   openOnFocus = false,
   multiline = false,
+  size = 'default',
+  chevron = false,
   renderBadge,
   ref,
   'aria-invalid': ariaInvalid,
@@ -361,10 +363,13 @@ function MultiSelector({
       <div
         ref={dropdownRef}
         className={cn(
-          'flex min-h-9 shadow-xs rounded-md border border-input text-sm ring-offset-background focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]',
+          'flex shadow-xs rounded-md border border-input text-sm ring-offset-background focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]',
           'has-[[aria-invalid=true]]:border-destructive has-[[aria-invalid=true]]:focus-within:border-destructive has-[[aria-invalid=true]]:focus-within:ring-destructive/50',
+          size === 'sm' ? 'min-h-8' : 'min-h-9',
           {
-            'px-3 py-2': selected.length !== 0,
+            'px-3': selected.length !== 0,
+            'py-2': selected.length !== 0 && size === 'default',
+            'py-1': selected.length !== 0 && size === 'sm',
             'cursor-text': !disabled && selected.length !== 0,
           },
           className,
@@ -442,7 +447,9 @@ function MultiSelector({
             className={cn(
               'flex-1 bg-transparent w-full outline-none placeholder:text-muted-foreground',
               {
-                'px-3 py-2': selected.length === 0,
+                'px-3': selected.length === 0,
+                'py-2': selected.length === 0 && size === 'default',
+                'py-1': selected.length === 0 && size === 'sm',
                 'ml-1 w-full': selected.length !== 0,
               },
               inputProps?.className,
@@ -466,6 +473,14 @@ function MultiSelector({
         >
           <XIcon size={18} />
         </button>
+        {chevron && (
+          <ChevronDown
+            className={cn(
+              'text-muted-foreground pointer-events-none mx-3 size-4 shrink-0',
+              multiline ? 'self-start mt-2' : 'self-center',
+            )}
+          />
+        )}
       </div>
       <div className={cn('relative', open ? 'block' : 'hidden')} ref={dropdownRef}>
         <CommandList

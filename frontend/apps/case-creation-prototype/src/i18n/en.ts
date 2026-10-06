@@ -70,10 +70,8 @@ const en: typeof fr = {
   signs: {
     instruction: 'Select at least one OBSERVED phenotype with its onset',
     search_placeholder: 'Search by phenotype name or HP code',
-    clear_search: 'Clear the search',
     search_min: 'Type at least 2 characters.',
     no_results: 'No matching term.',
-    more_results: 'Showing the first {{count}} — refine your search.',
     browse: 'Browse the HPO tree',
     observed: 'Observed phenotypes',
     suggestions: 'Suggestions for this analysis',

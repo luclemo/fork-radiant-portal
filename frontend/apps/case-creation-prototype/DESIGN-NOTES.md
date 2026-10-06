@@ -343,6 +343,20 @@ Where the design system already had an answer, the prototype uses it over the wi
   and the same for the indication. The mock writes « Study Code »; the prototype keeps sentence case.
 - **§5 cards step the rhythm down** (16 px inside a card, 16 between cards): a container inside a
   container. The wireframe's dashed divider became a solid hairline, as everywhere else.
+- **One dropdown pattern for term search** (2026-10-06): the HPO search in §3 is the DS
+  `AutoComplete`, the same as the indication in §4 and the analysis in §1 — a popover list, name then
+  code (Anthology Code), the match in bold, « Type at least 2 characters » before the search starts.
+  The inline result list it replaced pushed the page down and was a third pattern. A term already in
+  either list is not offered. Finite lists are the DS `Select`, ethnicities the `MultiSelector`.
+- **Every select has a chevron on the right**, AutoComplete and MultiSelector included.
+- **Clearing**: a required select or autocomplete (analysis, priority, organisation, relation) has no
+  clear. An optional one clears through a « ↺ Effacer la sélection » row at the top of its list while
+  a value is picked, as the research study does — not a ✕ in the field.
+- **The priority is drawn with the small indicator** (`size="sm"`) in the select, in the trigger and
+  in the list.
+- **The page is `muted`**, the cards stay white, and the prototype banner is white with a rule.
+- **Sections are not clipped**: the DS accordion body clips focus rings and dropdowns, so the
+  prototype opens it unclipped and without the open animation.
 - **Select placeholders are dark, AutoComplete and Input ones muted.** That is the DS today and the
   mock reproduces it. Not overridden here; worth a DS decision.
 

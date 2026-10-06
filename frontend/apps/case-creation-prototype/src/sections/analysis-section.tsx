@@ -65,9 +65,11 @@ function AnalysisSection({ state, update }: Props) {
           <FieldLabel>
             {t('analysis.label')} <Required />
           </FieldLabel>
-          {/* AutoComplete has no size prop and is 36 px; every other control is 32 (COMPONENT-TODO). */}
+          {/* Required, so no clear button. */}
           <AutoComplete
-            className="[&_[cmdk-input-wrapper]]:h-8"
+            size="sm"
+            clearable={false}
+            chevron
             options={analysisOptions}
             value={state.analysisCode}
             onChange={code => update(s => setAnalysis(s, code))}
@@ -91,7 +93,7 @@ function AnalysisSection({ state, update }: Props) {
             <SelectContent>
               {PRIORITIES.map(code => (
                 <SelectItem key={code} value={code}>
-                  <PriorityIndicator code={code} />
+                  <PriorityIndicator code={code} size="sm" />
                 </SelectItem>
               ))}
             </SelectContent>

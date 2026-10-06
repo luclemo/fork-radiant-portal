@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react';
 import { Command as CommandPrimitive } from 'cmdk';
-import { Check, XIcon } from 'lucide-react';
+import { Check, ChevronDown, XIcon } from 'lucide-react';
 
 import { CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/base/shadcn/command';
 import { Skeleton } from '@/components/base/shadcn/skeleton';
@@ -22,7 +22,17 @@ export type Option = {
   [name: string]: any;
 };
 
+/** Same scale as Input and Select. */
+export type AutoCompleteSize = 'default' | 'sm' | 'xs' | 'xxs';
+const sizeClasses: Record<AutoCompleteSize, string> = { default: 'h-9', sm: 'h-8', xs: 'h-7', xxs: 'h-6' };
+
 export type AutoCompleteProps<T extends Option> = {
+  /** Height, as on Input and Select. @default 'default' */
+  size?: AutoCompleteSize;
+  /** Show a clear button once a value is picked. Off for a required field. @default true */
+  clearable?: boolean;
+  /** Show a chevron on the right, as a Select does. @default false */
+  chevron?: boolean;
   options?: T[];
   emptyIndicator?: ReactNode;
   noSearchIndicator?: ReactNode;
@@ -48,6 +58,9 @@ export function getSelectedOptionByValue<T extends Option>(value: string | undef
 }
 
 export const AutoComplete = <T extends Option>({
+  size = 'default',
+  clearable = true,
+  chevron = false,
   options: arrayOptions = [],
   placeholder,
   emptyIndicator,
@@ -182,21 +195,27 @@ export const AutoComplete = <T extends Option>({
           placeholder={placeholder}
           disabled={disabled}
           className="text-sm"
+          wrapperClassName={sizeClasses[size]}
           leftAddon={leftAddon}
           rightAddon={
-            <button
-              type="button"
-              onClick={() => {
-                setSelected(undefined);
-                setInputValue('');
-                onChange?.('');
-              }}
-              className={cn('h-[26px] p-0', {
-                hidden: !selected || disabled,
-              })}
-            >
-              <XIcon size={16} className="" />
-            </button>
+            <>
+              {clearable && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelected(undefined);
+                    setInputValue('');
+                    onChange?.('');
+                  }}
+                  className={cn('h-[26px] p-0', {
+                    hidden: !selected || disabled,
+                  })}
+                >
+                  <XIcon size={16} className="" />
+                </button>
+              )}
+              {chevron && <ChevronDown className="text-muted-foreground pointer-events-none ml-2 size-4 shrink-0" />}
+            </>
           }
         />
       </div>

@@ -44,7 +44,9 @@ function SectionCard({
     <AccordionItem
       value={id}
       data-section={id}
-      className="bg-card text-card-foreground flex flex-col gap-0 rounded-lg border p-6 shadow-xs"
+      // The body is `overflow: hidden` for the DS open/close animation, which clips focus rings and
+      // any dropdown that opens past the card. Open instantly and unclipped instead.
+      className="bg-card text-card-foreground flex flex-col gap-0 rounded-lg border p-6 shadow-xs [&>[role=region]]:animate-none [&>[role=region]]:overflow-visible"
     >
       <AccordionTrigger chevronPlacement="right" className="py-0">
         <span className="flex items-center gap-3">
@@ -108,9 +110,11 @@ function CaseCreationPage() {
   useEffect(() => () => clearTimeout(flashTimer.current), []);
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-muted min-h-screen">
       {/* The prototype says what it is on screen, so a screenshot can't be mistaken for the product. */}
-      <div className="bg-muted text-muted-foreground px-6 py-1.5 text-center text-xs">{t('page.prototype_banner')}</div>
+      <div className="bg-background text-muted-foreground border-b px-6 py-1.5 text-center text-xs">
+        {t('page.prototype_banner')}
+      </div>
 
       <div className="mx-auto max-w-[1200px] px-6 py-6">
         <h1 className="mb-6 text-2xl font-semibold">{t('page.title')}</h1>
