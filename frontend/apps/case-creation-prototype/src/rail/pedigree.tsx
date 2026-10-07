@@ -151,10 +151,8 @@ function Pedigree({ members, probandSex, probandDeceased, consanguinity }: Props
   const vbH = (hasKids ? yBot : yMid) + H + LBL + 6 - vbY;
 
   return (
-    <div className="border-border mt-3 border-t pt-3 text-center">
-      <p className="text-muted-foreground mb-2 text-[10px] font-semibold uppercase tracking-wide">
-        {t('rail.pedigree')}
-      </p>
+    <div className="flex flex-col gap-2 text-center">
+      <p className="text-muted-foreground text-xs font-semibold">{t('rail.pedigree')}</p>
       {/* Natural size, centred: a small tree is never magnified, a very wide one only shrinks. */}
       <svg
         className="mx-auto block h-auto max-w-full"

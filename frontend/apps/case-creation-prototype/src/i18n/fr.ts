@@ -201,6 +201,7 @@ const fr = {
     members_one: '{{count}} membre',
     members_other: '{{count}} membres',
     note_added: 'Ajoutée', // the wireframe's « Ajouté », agreed with « note »
+    type: { germline: 'Germinal', somatic: 'Somatique' },
     composition: { 2: 'Duo', 3: 'Trio', 4: 'Quatuor', many: '{{count}} séquencés' },
     pedigree: 'Pedigree',
     pedigree_aria: 'Pedigree familial',

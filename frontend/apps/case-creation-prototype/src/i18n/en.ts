@@ -201,6 +201,8 @@ const en: typeof fr = {
     members_one: '{{count}} member',
     members_other: '{{count}} members',
     note_added: 'Added',
+    // Short case-type label for the rail badge; the family-ness is carried by the composition badge.
+    type: { germline: 'Germline', somatic: 'Somatic' },
     composition: { 2: 'Duo', 3: 'Trio', 4: 'Quad', many: '{{count}} sequenced' },
     pedigree: 'Pedigree',
     pedigree_aria: 'Family pedigree',

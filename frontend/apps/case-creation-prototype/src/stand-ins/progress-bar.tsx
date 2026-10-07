@@ -12,7 +12,7 @@ function ProgressBar({ value, className }: { value: number; className?: string }
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={pct}
-      className={cn('bg-muted h-1.5 w-full overflow-hidden rounded-full', className)}
+      className={cn('bg-primary/20 h-1.5 w-full overflow-hidden rounded-full', className)}
     >
       <div className="bg-primary h-full rounded-full transition-[width]" style={{ width: `${pct}%` }} />
     </div>

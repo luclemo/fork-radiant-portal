@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import type { TFunction } from 'i18next';
 
-import AnalysisTypeCodeBadge from '@/components/base/badges/analysis-type-code-badge';
 import PriorityIndicator from '@/components/base/indicators/priority-indicator';
 import { Badge } from '@/components/base/shadcn/badge';
 import { Button } from '@/components/base/shadcn/button';
@@ -33,7 +32,7 @@ type Props = {
 /** One summary row. `done` inks the value: the user has answered, « Inconnu » included. */
 function Row({ label, done, children }: { label: string; done?: boolean; children?: ReactNode }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 py-1 text-sm">
+    <div className="border-border flex items-baseline justify-between gap-3 border-b py-2 text-xs">
       <span className="text-muted-foreground shrink-0">{label}</span>
       <span className={cn('min-w-0 text-right', done ? 'text-foreground font-medium' : 'text-muted-foreground')}>
         {children ?? '—'}
@@ -42,9 +41,13 @@ function Row({ label, done, children }: { label: string; done?: boolean; childre
   );
 }
 
-function GroupLabel({ children }: { children: ReactNode }) {
+/** A captioned block of rows. The caption is half-ink, so the rows carry the weight. */
+function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="text-muted-foreground mt-4 mb-0.5 text-xs font-semibold uppercase tracking-wide">{children}</div>
+    <div className="flex flex-col gap-2">
+      <h4 className="text-foreground/50 text-xs font-semibold">{title}</h4>
+      <div>{children}</div>
+    </div>
   );
 }
 
@@ -78,15 +81,14 @@ function CaseRail({ state, gate, flash, onCreate, onDraft }: Props) {
 
   // The batch: the proband plus every card ticked into the analysis. Solo shows nothing — it is the
   // default, so a badge would say nothing. The named ladder stops at four (duo, trio, quad are the
-  // terms in use); past that, the count itself.
+  // terms in use); past that, the count itself. The type badge says « Germline » either way: the
+  // composition badge beside it is what tells solo from family.
   const sequenced = sequencedCount(state);
   const composition = compositionLabel(sequenced, t);
-  // Once a relative is sequenced the DS already has the word for it: the germline_family variant.
-  const caseType = analysis && (analysis.type === 'germline' && sequenced > 1 ? 'germline_family' : analysis.type);
 
   return (
     <Card className="sticky top-6">
-      <CardContent className="flex flex-col">
+      <CardContent className="flex flex-col gap-6">
         {/* The actions lead the card so Create is always above the fold; the bar and count sit
             directly under them because they explain why Create is not available yet. */}
         <div className="flex flex-col gap-2">
@@ -98,65 +100,69 @@ function CaseRail({ state, gate, flash, onCreate, onDraft }: Props) {
           <Button variant="outline" onClick={onDraft}>
             {t('rail.save_draft')}
           </Button>
+          <div className="flex flex-col gap-1.5 pt-1">
+            <ProgressBar value={gate.done / gate.total} />
+            <p className="text-muted-foreground text-right text-xs">
+              {t('rail.required_count', { done: gate.done, total: gate.total })}
+            </p>
+            {/* Empty at rest, so it costs no height. A flash pushes the summary down for 2.4 s. */}
+            {flash && <p className="text-foreground text-xs">{flash}</p>}
+          </div>
         </div>
-        <ProgressBar className="mt-3" value={gate.done / gate.total} />
-        <p className="text-muted-foreground mt-1.5 text-right text-xs">
-          {t('rail.required_count', { done: gate.done, total: gate.total })}
-        </p>
-        {/* Empty at rest, so it costs no height. A flash pushes the summary down for 2.4 s. */}
-        {flash && <p className="text-foreground mt-2 text-xs">{flash}</p>}
 
-        <h3 className="mt-[22px] mb-1 text-sm font-semibold">{t('rail.summary')}</h3>
-
-        <Row label={t('rail.analysis')} done={!!analysis}>
-          {(analysis || composition) && (
-            <span className="inline-flex items-center gap-1.5">
-              {analysis?.code}
-              {caseType && <AnalysisTypeCodeBadge code={caseType} />}
-              {/* The plain badge, so the only colour in the row stays on the case type. It shows even
-                  with no analysis picked: the composition is a fact of the family, not of the analysis. */}
-              {composition && <Badge variant="neutral">{composition}</Badge>}
-            </span>
-          )}
-        </Row>
-        {/* Category and Priority ink unconditionally: they ship with defaults. */}
-        <Row label={t('rail.category')} done>
-          {t(state.prenatal ? 'category.prenatal' : 'category.postnatal')}
-        </Row>
-        <Row label={t('rail.priority')} done>
-          <PriorityIndicator code={state.priority} />
-        </Row>
-        {/* In a prenatal case §2 holds the mother's identity, so the identifier row says so.
-            DDN and Nom are hers too but stay unqualified: three parentheses in a row is noise. */}
-        <Row
-          label={t(state.prenatal ? 'rail.mother_id' : 'rail.proband_id')}
-          done={!!state.patientId.trim() && !idRejected}
-        >
-          {state.patientId.trim() || undefined}
-        </Row>
-        <Row label={t('rail.patient_org')} done={!!state.patientOrg}>
-          {state.patientOrg || undefined}
-        </Row>
-        {/* The form shows initials; the rail spells the word: « Féminin », not « F ». */}
-        <Row label={t(state.prenatal ? 'rail.sex_mother' : 'rail.sex')} done={!!state.sex}>
-          {state.sex ? t(`patient.sex_full.${state.sex}`) : undefined}
-        </Row>
-        <Row label={t('rail.dob')} done={!!state.dob && state.dob <= todayStr()}>
-          {state.dob || undefined}
-        </Row>
-        {/* One gate item: a first name alone is a half-answer and stays muted. */}
-        <Row label={t('rail.name')} done={!!state.firstName.trim() && !!state.lastName.trim()}>
-          {name || undefined}
-        </Row>
-        {/* Above the fetal block: a captioned group must end at the next caption. The text counts
-            every term the case records; the ink answers the requirement — an OBSERVED one. */}
-        <Row label={t('rail.phenotypes')} done={state.observed.length > 0}>
-          {t('rail.terms', { count: state.observed.length + state.notObserved.length })}
-        </Row>
+        <div className="flex flex-col gap-1">
+          <h3 className="text-sm font-semibold">{t('rail.summary')}</h3>
+          <div>
+            <Row label={t('rail.analysis')} done={!!analysis}>
+              {(analysis || composition) && (
+                <span className="inline-flex items-center gap-1">
+                  {analysis?.code}
+                  {/* Plain secondary badges, so nothing in the row competes with the code. The
+                      composition shows even with no analysis picked: it is a fact of the family. */}
+                  {analysis && <Badge variant="secondary">{t(`rail.type.${analysis.type}`)}</Badge>}
+                  {composition && <Badge variant="secondary">{composition}</Badge>}
+                </span>
+              )}
+            </Row>
+            {/* Category and Priority ink unconditionally: they ship with defaults. */}
+            <Row label={t('rail.category')} done>
+              {t(state.prenatal ? 'category.prenatal' : 'category.postnatal')}
+            </Row>
+            <Row label={t('rail.priority')} done>
+              <PriorityIndicator code={state.priority} size="sm" />
+            </Row>
+            {/* In a prenatal case §2 holds the mother's identity, so the identifier row says so.
+                DDN and Nom are hers too but stay unqualified: three parentheses in a row is noise. */}
+            <Row
+              label={t(state.prenatal ? 'rail.mother_id' : 'rail.proband_id')}
+              done={!!state.patientId.trim() && !idRejected}
+            >
+              {state.patientId.trim() || undefined}
+            </Row>
+            <Row label={t('rail.patient_org')} done={!!state.patientOrg}>
+              {state.patientOrg || undefined}
+            </Row>
+            {/* The form shows initials; the rail spells the word: « Féminin », not « F ». */}
+            <Row label={t(state.prenatal ? 'rail.sex_mother' : 'rail.sex')} done={!!state.sex}>
+              {state.sex ? t(`patient.sex_full.${state.sex}`) : undefined}
+            </Row>
+            <Row label={t('rail.dob')} done={!!state.dob && state.dob <= todayStr()}>
+              {state.dob || undefined}
+            </Row>
+            {/* One gate item: a first name alone is a half-answer and stays muted. */}
+            <Row label={t('rail.name')} done={!!state.firstName.trim() && !!state.lastName.trim()}>
+              {name || undefined}
+            </Row>
+            {/* Above the fetal block: a captioned group must end at the next caption. The text counts
+                every term the case records; the ink answers the requirement — an OBSERVED one. */}
+            <Row label={t('rail.phenotypes')} done={state.observed.length > 0}>
+              {t('rail.terms', { count: state.observed.length + state.notObserved.length })}
+            </Row>
+          </div>
+        </div>
 
         {state.prenatal && (
-          <>
-            <GroupLabel>{t('rail.fetal')}</GroupLabel>
+          <Group title={t('rail.fetal')}>
             {/* « Indéterminé » is an answer, so it inks. */}
             <Row label={t('rail.fetal_sex')} done={!!state.fetalSex}>
               {state.fetalSex ? t(`patient.fetal_sex_full.${state.fetalSex}`) : undefined}
@@ -164,35 +170,37 @@ function CaseRail({ state, gate, flash, onCreate, onDraft }: Props) {
             <Row label={t('rail.gest_age')} done={gestDone}>
               {gestText}
             </Row>
-          </>
+          </Group>
         )}
 
-        <GroupLabel>{t('rail.optional_additions')}</GroupLabel>
-        {/* The label alone: the code is in the form, and the rail is read at a glance. */}
-        <Row label={t('rail.condition')} done={!!state.condition}>
-          {state.condition ? conditionLabel(state.condition, lang).replace(/\s*—.*$/, '') : undefined}
-        </Row>
-        {/* No default: « — » until answered, then inked — « Inconnue » included. */}
-        <Row label={t('rail.consanguinity')} done={!!state.consanguinity}>
-          {state.consanguinity ? t(`other.consanguinity_values.${state.consanguinity}`) : undefined}
-        </Row>
-        {/* In the chips' order — the DS multi-select lists picks in option order, not pick order. */}
-        <Row label={t('rail.ethnicities')} done={state.ethnicities.length > 0}>
-          {state.ethnicities.length
-            ? ETHNICITIES.filter(e => state.ethnicities.includes(e.code))
-                .map(e => e[lang])
-                .join(', ')
-            : undefined}
-        </Row>
-        {/* Free text: an indicator only, never the text itself. */}
-        <Row label={t('rail.note')} done={!!state.note.trim()}>
-          {state.note.trim() ? t('rail.note_added') : undefined}
-        </Row>
-        {/* Counts the cards — every relative reported, in the analysis or not. The composition
-            badge counts the batch instead, and the two disagreeing is correct. */}
-        <Row label={t('rail.family')} done={state.family.length > 0}>
-          {t('rail.members', { count: state.family.length })}
-        </Row>
+        <Group title={t('rail.optional_additions')}>
+          {/* The label alone: the code is in the form, and the rail is read at a glance. */}
+          <Row label={t('rail.condition')} done={!!state.condition}>
+            {state.condition ? conditionLabel(state.condition, lang).replace(/\s*—.*$/, '') : undefined}
+          </Row>
+          {/* No default: « — » until answered, then inked — « Inconnue » included. */}
+          <Row label={t('rail.consanguinity')} done={!!state.consanguinity}>
+            {state.consanguinity ? t(`other.consanguinity_values.${state.consanguinity}`) : undefined}
+          </Row>
+          {/* In the chips' order — the DS multi-select lists picks in option order, not pick order. */}
+          <Row label={t('rail.ethnicities')} done={state.ethnicities.length > 0}>
+            {state.ethnicities.length
+              ? ETHNICITIES.filter(e => state.ethnicities.includes(e.code))
+                  .map(e => e[lang])
+                  .join(', ')
+              : undefined}
+          </Row>
+          {/* Free text: an indicator only, never the text itself. */}
+          <Row label={t('rail.note')} done={!!state.note.trim()}>
+            {state.note.trim() ? t('rail.note_added') : undefined}
+          </Row>
+          {/* Counts the cards — every relative reported, in the analysis or not. The composition
+              badge counts the batch instead, and the two disagreeing is correct. */}
+          <Row label={t('rail.family')} done={state.family.length > 0}>
+            {t('rail.members', { count: state.family.length })}
+          </Row>
+        </Group>
+
         <Pedigree
           members={state.family}
           // The proband is the fetus in a prenatal case, so its symbol takes the fetal sex.
