@@ -4,7 +4,14 @@ import { AutoComplete } from '@/components/base/data-entry/auto-complete';
 import PriorityIndicator from '@/components/base/indicators/priority-indicator';
 import { Field, FieldLabel } from '@/components/base/shadcn/field';
 import { Input } from '@/components/base/shadcn/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/base/shadcn/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/base/shadcn/select';
 import { Switch } from '@/components/base/shadcn/switch';
 import { cn } from '@/components/lib/utils';
 
@@ -14,6 +21,10 @@ import { ANALYSES } from '../mock/analyses';
 import { PRIORITIES, type PriorityCode, STUDIES } from '../mock/options';
 import Required from '../required';
 import { useFlash } from '../use-flash';
+
+// Radix Select cannot hold an empty value, so the clear row uses a sentinel. The design system's
+// Select has no clear of its own — logged in COMPONENT-TODO.md.
+const CLEAR = '__clear__';
 
 type Props = {
   state: FormState;
@@ -53,9 +64,9 @@ function AnalysisSection({ state, update }: Props) {
           <FieldLabel>
             {t('analysis.label')} <Required />
           </FieldLabel>
+          {/* AutoComplete has no size prop and is 36 px; every other control is 32 (COMPONENT-TODO). */}
           <AutoComplete
-            size="sm"
-            chevron
+            className="[&_[cmdk-input-wrapper]]:h-8"
             options={analysisOptions}
             value={state.analysisCode}
             onChange={code => update(s => setAnalysis(s, code))}
@@ -102,15 +113,19 @@ function AnalysisSection({ state, update }: Props) {
       {/* Picking a study IS the consent, so there is no separate checkbox. */}
       <Field>
         <FieldLabel>{t('analysis.study')}</FieldLabel>
-        <Select value={state.study} onValueChange={v => update(s => ({ ...s, study: v }))}>
-          <SelectTrigger
-            size="sm"
-            onClear={state.study ? () => update(s => ({ ...s, study: '' })) : undefined}
-            clearLabel={t('common.clear')}
-          >
+        <Select value={state.study} onValueChange={v => update(s => ({ ...s, study: v === CLEAR ? '' : v }))}>
+          <SelectTrigger size="sm">
             <SelectValue placeholder={t('analysis.study_placeholder')} />
           </SelectTrigger>
           <SelectContent>
+            {state.study && (
+              <>
+                <SelectItem value={CLEAR} className="text-muted-foreground">
+                  {t('analysis.clear_selection')}
+                </SelectItem>
+                <SelectSeparator />
+              </>
+            )}
             {STUDIES.map(name => (
               <SelectItem key={name} value={name}>
                 {name}

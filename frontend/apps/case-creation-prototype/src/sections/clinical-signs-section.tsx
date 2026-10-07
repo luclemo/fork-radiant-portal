@@ -1,11 +1,11 @@
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { BookOpenTextIcon, PlusIcon, SearchIcon, XIcon } from 'lucide-react';
 
-import { AutoComplete } from '@/components/base/data-entry/auto-complete';
 import { Badge } from '@/components/base/shadcn/badge';
 import { Button } from '@/components/base/shadcn/button';
 import { Checkbox } from '@/components/base/shadcn/checkbox';
 import { Field, FieldLabel } from '@/components/base/shadcn/field';
+import { Input } from '@/components/base/shadcn/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/base/shadcn/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/base/shadcn/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/base/shadcn/tooltip';
@@ -30,10 +30,18 @@ const SEARCH_CAP = 10;
 const SUGGESTIONS_SHOWN = 5;
 
 /**
- * A suggestion that is not picked yet. Ticking it sends it up into the observed table, so a picked
- * term never appears twice. A long name wraps, the code trailing its last line.
+ * A term that is not picked yet — a suggestion or a search result. Ticking it sends it up into the
+ * observed table, so a picked term never appears twice. A long name wraps, the code trailing its
+ * last line.
  */
-function TermRow({ id, lang, state, update }: Props & { id: string; lang: Lang }) {
+function TermRow({
+  id,
+  lang,
+  state,
+  update,
+  query,
+  onPicked,
+}: Props & { id: string; lang: Lang; query?: string; onPicked?: () => void }) {
   const { t } = useCaseCreationT();
   // A term is observed or not observed, never both.
   const inOther = state.notObserved.includes(id);
@@ -51,11 +59,16 @@ function TermRow({ id, lang, state, update }: Props & { id: string; lang: Lang }
         className="mt-0.5"
         checked={false}
         disabled={inOther}
-        onCheckedChange={() => update(s => toggleObserved(s, id))}
+        onCheckedChange={() => {
+          update(s => toggleObserved(s, id));
+          onPicked?.();
+        }}
       />
       <span className="min-w-0 flex-1 text-sm leading-5 font-medium">
-        {termLabel(id, lang)}
-        <AnthologyCode className="ml-1.5 font-normal">{id}</AnthologyCode>
+        <Highlight text={termLabel(id, lang)} query={query} />
+        <AnthologyCode className="ml-1.5 font-normal">
+          <Highlight text={id} query={query} />
+        </AnthologyCode>
       </span>
     </label>
   );
@@ -65,11 +78,8 @@ function ClinicalSignsSection({ state, update }: Props) {
   const { t, i18n } = useCaseCreationT();
   const lang: Lang = i18n.language.startsWith('fr') ? 'fr' : 'en';
   const sort = byLabel(lang);
-  const searchWrap = useRef<HTMLDivElement>(null);
-  // What the search box last asked for. The DS AutoComplete takes the options it should list, so
-  // the matching happens here, as the real form's term search would on the server.
-  const [term, setTerm] = useState('');
-  const [searchKey, setSearchKey] = useState(0);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState('');
   const [expanded, setExpanded] = useState(false);
   const [browser, setBrowser] = useState<BrowserTarget | null>(null);
 
@@ -79,34 +89,21 @@ function ClinicalSignsSection({ state, update }: Props) {
   const suggestions = offered.filter(id => !observedIds.includes(id)).sort(sort);
   const shownSuggestions = expanded ? suggestions : suggestions.slice(0, SUGGESTIONS_SHOWN);
 
-  // The search looks at the displayed language only (the HP id matches in both). A term already in
-  // either list isn't offered: it is observed, or can't be.
-  const q = fold(term.trim());
-  const searchOptions = useMemo(() => {
-    if (q.length < SEARCH_MIN) return [];
-    const taken = new Set([...state.observed.map(o => o.id), ...state.notObserved]);
-    const out = [];
-    for (const hpo of HPO_LIST) {
-      if (taken.has(hpo.id) || !hpo.hay[lang].includes(q)) continue;
-      const name = termLabel(hpo.id, lang);
-      out.push({
-        value: hpo.id,
-        display: name,
-        // Raw and folded, because AutoComplete filters the list again on what was typed.
-        filter: `${name} ${fold(name)} ${hpo.id}`.toLowerCase(),
-        label: (
-          <span>
-            <Highlight text={name} query={q} />
-            <AnthologyCode className="ml-1.5">
-              <Highlight text={hpo.id} query={q} />
-            </AnthologyCode>
-          </span>
-        ),
-      });
-      if (out.length >= SEARCH_CAP) break;
+  // The search looks at the displayed language only (the HP id matches in both), and offers only
+  // what isn't on screen already: nothing picked, nothing in the suggestions.
+  const q = fold(query.trim());
+  let results: string[] = [];
+  let hint = '';
+  if (q.length >= SEARCH_MIN) {
+    for (const term of HPO_LIST) {
+      if (observedIds.includes(term.id) || offered.includes(term.id)) continue;
+      if (term.hay[lang].includes(q)) results.push(term.id);
+      if (results.length > SEARCH_CAP) break; // one past the cap = there are more
     }
-    return out;
-  }, [q, lang, state.observed, state.notObserved]);
+    if (!results.length) hint = t('signs.no_results');
+    else if (results.length > SEARCH_CAP) hint = t('signs.more_results', { count: SEARCH_CAP });
+    results = results.slice(0, SEARCH_CAP);
+  } else if (q.length > 0) hint = t('signs.search_min');
 
   const notObserved = [...state.notObserved].sort(sort);
 
@@ -120,39 +117,61 @@ function ClinicalSignsSection({ state, update }: Props) {
           {t('signs.instruction')} <Required />
         </FieldLabel>
         <div className="flex gap-4">
-          {/* The same term search as the indication in §4: the DS AutoComplete. Picking a term adds it
-              and empties the box (a remount, since AutoComplete keeps its own copy of the pick), ready
-              for the next sign. */}
-          <div ref={searchWrap} className="min-w-0 flex-1">
-            <AutoComplete
-              key={searchKey}
+          <div className="relative min-w-0 flex-1">
+            <Input
+              ref={searchRef}
               size="sm"
-              clearable={false}
-              leftAddon={<SearchIcon className="text-muted-foreground mr-2 size-4 shrink-0" />}
-              options={searchOptions}
+              startIcon={SearchIcon}
+              className="pr-8"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={e => e.key === 'Escape' && setQuery('')}
               placeholder={t('signs.search_placeholder')}
-              onSearch={setTerm}
-              minSearchLength={SEARCH_MIN}
-              debounceDelay={0}
-              optionFilterProp="filter"
-              optionLabelProp="display"
-              noSearchIndicator={<div className="text-center text-sm">{t('signs.search_min')}</div>}
-              emptyIndicator={<div className="text-center text-sm">{t('signs.no_results')}</div>}
-              onChange={id => {
-                if (!id) return;
-                update(s => toggleObserved(s, id));
-                setTerm('');
-                setSearchKey(k => k + 1);
-                // Back into the box once AutoComplete has let go of focus.
-                setTimeout(() => searchWrap.current?.querySelector('input')?.focus(), 50);
-              }}
+              aria-label={t('signs.search_placeholder')}
             />
+            {query && (
+              <Button
+                variant="ghost"
+                size="2xs"
+                iconOnly
+                className="text-muted-foreground absolute top-1/2 right-1 -translate-y-1/2"
+                aria-label={t('signs.clear_search')}
+                title={t('signs.clear_search')}
+                onClick={() => {
+                  setQuery('');
+                  searchRef.current?.focus();
+                }}
+              >
+                <XIcon />
+              </Button>
+            )}
           </div>
           <Button variant="outline" size="sm" className="w-56 shrink-0" onClick={() => setBrowser('observed')}>
             <BookOpenTextIcon />
             {t('signs.browse')}
           </Button>
         </div>
+
+        {results.length > 0 && (
+          <div className="flex flex-col gap-0.5">
+            {results.map(id => (
+              <TermRow
+                key={id}
+                id={id}
+                lang={lang}
+                state={state}
+                update={update}
+                query={q}
+                // Picking from the search answers it: empty the box, ready for the next sign.
+                onPicked={() => {
+                  setQuery('');
+                  searchRef.current?.focus();
+                }}
+              />
+            ))}
+          </div>
+        )}
+        {hint && <p className="text-muted-foreground text-xs italic">{hint}</p>}
       </Field>
 
       {/* What is observed, as a table: the onset is a column, and a term leaves with its ✕. Nothing

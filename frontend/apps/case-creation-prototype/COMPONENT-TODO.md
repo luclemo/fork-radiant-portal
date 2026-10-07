@@ -40,14 +40,14 @@ No change to the component. Overrides, all in `SectionCard` (`src/case-creation-
 | AutoComplete | Shows a ✕ even on a required field, which should not be clearable | open |
 | AutoComplete | No highlight of the matching text in results | open |
 | AutoComplete | Looks like a text input, no chevron. Check in review whether that reads as a select | open |
-| Select (`base/shadcn/select.tsx`) | **Edited in this branch:** `SelectTrigger` takes `onClear` (and `clearLabel`) and draws a ✕ before the chevron while a value is picked, matching AutoComplete and MultiSelector. Replaces the « ↺ Effacer la sélection » row the prototype had | edited |
+| Select (`base/shadcn/select.tsx`) | No way to clear back to the placeholder. The prototype adds a « ↺ Effacer la sélection » row (study, §1) | open |
 | Button | A disabled button can't say why. Create is styled unavailable but stays clickable to explain what's missing. Is there a DS pattern for this? | open |
 | Badge (`base/shadcn/badge.tsx`) | The ✕ of a closable badge has no accessible name (« Retirer — <terme> ») and passes `onClose` on to the `<div>` too | open |
 | AutoComplete | Ignores a value cleared from outside: it keeps showing the old pick. The prototype remounts it when the analysis clears the indication | open |
 | AutoComplete, MultiSelector (cmdk) | Two on one page fight over focus. When one changes its text or selection while the cursor is in another, cmdk moves the cursor into it. The prototype holds the indication back until focus leaves the analysis field | open |
 | MultiSelector | Its menu doesn't follow a change of language when given only `defaultOptions`; passing `options` too fixes it. Chips follow option order, not pick order | open |
-| AutoComplete (`base/data-entry/auto-complete.tsx`) | **Edited in this branch, for the FE team to review:** new `size` (same scale as Input and Select), `clearable` (default true) and `chevron` props. The mock draws every select with a chevron on the right; every select clears with a ✕ before it. Open: the picked value is plain text inside the input, so a code in it (« Cancer (MONDO:0004992) ») cannot use the Anthology Code component | edited |
-| MultiSelector (`base/data-entry/multi-selector`) | **Edited in this branch:** new `size` (`default` / `sm`) and `chevron` props, same reason | edited |
+| AutoComplete | No `size` prop: its wrapper is a fixed 36 px, while the mock uses 32 everywhere. The prototype forces 32 with `[&_[cmdk-input-wrapper]]:h-8` | open |
+| MultiSelector | Same: `min-h-9` on the wrapper and `py-2` on its input. The prototype overrides both (`className`, `inputProps`) | open |
 | Accordion (`base/shadcn/accordion.tsx`) | The body is `overflow: hidden` for its open/close animation, which clips focus rings and any dropdown that opens past the section. The prototype turns the animation and the clipping off from the outside (`SectionCard`). A DS-level answer is needed: dropdowns inside an accordion are the normal case in a form | open |
 | FieldSeparator (`base/shadcn/field.tsx`) | Label is always centred, and the root carries `-my-2` for its own FieldGroup. The mock's separator has its label on the left. Stand-in: `src/stand-ins/group-separator.tsx` | open |
 | Select vs AutoComplete / Input | A Select's placeholder is drawn in the foreground colour (`data-placeholder:text-foreground`), the others' in muted. The mock reproduces it. Decide which is right | open |

@@ -103,8 +103,9 @@ bar · `x sur 7 champs requis`, then 22 px, then « Résumé du cas »:
 - **Free-text placeholders say what to type**: the prescriber's input asks « Nom du médecin »
   (« Qui demande cette analyse » is its *label*); the names read « Prénom » / « Nom », a bare echo,
   because a name has no format or example to offer.
-- **Every dropdown is clearable** back to its placeholder while filled, with a ✕ in the field (see
-  the content pass below).
+- **Every dropdown is clearable** back to its placeholder while filled — **except a required one**,
+  which keeps no clear. (Briefly changed to « every select has a ✕ » on 2026-10-06, then taken
+  back the next day: the DS components are not edited for now, so that waits for the devs.)
 - **« Inconnu » is an answer, so the rail inks it.** A value goes dark as soon as the user has
   answered, Unknown included; only the em-dash stays muted. Pré/Postnatal and Priorité ink
   unconditionally — they ship with defaults.
@@ -346,18 +347,6 @@ Where the design system already had an answer, the prototype uses it over the wi
   and the same for the indication. The mock writes « Study Code »; the prototype keeps sentence case.
 - **§5 cards step the rhythm down** (16 px inside a card, 16 between cards): a container inside a
   container. The wireframe's dashed divider became a solid hairline, as everywhere else.
-- **One dropdown pattern for term search** (2026-10-06): the HPO search in §3 is the DS
-  `AutoComplete`, the same as the indication in §4 and the analysis in §1 — a popover list, name then
-  code (Anthology Code), the match in bold, « Type at least 2 characters » before the search starts.
-  The inline result list it replaced pushed the page down and was a third pattern. A term already in
-  either list is not offered. Finite lists are the DS `Select`, ethnicities the `MultiSelector`.
-- **Every select has a chevron on the right**, AutoComplete and MultiSelector included.
-- **Clearing** (Lucas, 2026-10-06, reversing the earlier « required fields have no clear »): **every**
-  select and autocomplete shows a ✕ before its chevron once a value is picked, required or not — an
-  autocomplete without one is miserable to use, and clearing a required field just leaves the gate
-  unmet. No « Clear selection » row in the menus. Exceptions: Priority and Onset always hold a value
-  (Routine, Unknown are answers), so there is nothing to clear to; the HPO search is a box that adds
-  and empties itself.
 - **The priority is drawn with the small indicator** (`size="sm"`) in the select, in the trigger and
   in the list.
 - **The page is `muted`**, the cards stay white, and the prototype banner is white with a rule.

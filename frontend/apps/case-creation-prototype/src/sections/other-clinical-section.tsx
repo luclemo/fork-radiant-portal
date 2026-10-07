@@ -75,9 +75,9 @@ function OtherClinicalSection({ state, update }: Props) {
         // « epilepsie » — and the code, so « MONDO:0005 » works too.
         filter: conditionHay(c, lang).toLowerCase(),
         label: (
-          <span>
-            {c[lang]}
-            {c.id !== UNDIAGNOSED && <AnthologyCode className="ml-1.5">{c.id}</AnthologyCode>}
+          <span className="flex w-full items-baseline justify-between gap-3">
+            <span>{c[lang]}</span>
+            {c.id !== UNDIAGNOSED && <AnthologyCode className="shrink-0">{c.id}</AnthologyCode>}
           </span>
         ),
       })),
@@ -134,8 +134,9 @@ function OtherClinicalSection({ state, update }: Props) {
               filter: (code, search) => (ethnicityHay[code]?.includes(fold(search.trim())) ? 1 : 0),
             }}
             openOnFocus
-            size="sm"
-            chevron
+            // 32 px like the other controls; the DS wrapper is min 36 (COMPONENT-TODO).
+            className={cn('min-h-8', state.ethnicities.length > 0 && 'py-1')}
+            inputProps={{ className: 'py-1' }}
             multiline
             hidePlaceholderWhenSelected
           />
@@ -148,10 +149,10 @@ function OtherClinicalSection({ state, update }: Props) {
         <FieldLabel>{t('other.condition')}</FieldLabel>
         <div className="flex gap-4">
           <div className={cn('min-w-0 flex-1 rounded-md transition-shadow', conditionFlash && 'ring-ring ring-2')}>
+            {/* 32 px like every other control: AutoComplete has no size prop (COMPONENT-TODO). */}
             <AutoComplete
+              className="[&_[cmdk-input-wrapper]]:h-8"
               key={conditionKey}
-              size="sm"
-              chevron
               options={conditionOptions}
               value={conditionShown}
               onChange={id => update(s => ({ ...s, condition: id }))}

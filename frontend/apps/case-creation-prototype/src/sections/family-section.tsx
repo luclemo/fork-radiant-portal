@@ -113,12 +113,7 @@ function MemberCard({
           </FieldLabel>
           {/* Required, so no clear row. A parent already on another card can't be picked twice. */}
           <Select value={m.relation} onValueChange={v => update(s => setMemberRelation(s, m.uid, v as RelationCode))}>
-            <SelectTrigger
-              size="sm"
-              aria-invalid={bad('relation') || undefined}
-              onClear={m.relation ? () => update(s => setMemberRelation(s, m.uid, '')) : undefined}
-              clearLabel={t('common.clear')}
-            >
+            <SelectTrigger size="sm" aria-invalid={bad('relation') || undefined}>
               <SelectValue placeholder={t('family.relation_placeholder')} />
             </SelectTrigger>
             <SelectContent>
@@ -211,12 +206,7 @@ function MemberCard({
                 </FieldLabel>
                 {/* Follows the proband's organization until the user picks another. */}
                 <Select value={memberOrg(state, m)} onValueChange={v => set('org', v)}>
-                  <SelectTrigger
-                    size="sm"
-                    aria-invalid={bad('org') || undefined}
-                    onClear={memberOrg(state, m) ? () => set('org', '') : undefined}
-                    clearLabel={t('common.clear')}
-                  >
+                  <SelectTrigger size="sm" aria-invalid={bad('org') || undefined}>
                     <SelectValue placeholder={t('patient.org_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>

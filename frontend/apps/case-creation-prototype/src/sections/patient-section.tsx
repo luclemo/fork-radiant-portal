@@ -144,13 +144,9 @@ function PatientSection({ state, update }: Props) {
             <FieldLabel>
               {t('patient.org')} <Required />
             </FieldLabel>
-            {/* No default value. */}
+            {/* Required, so no clear row. No default value. */}
             <Select value={state.patientOrg} onValueChange={v => update(s => ({ ...s, patientOrg: v }))}>
-              <SelectTrigger
-                size="sm"
-                onClear={state.patientOrg ? () => update(s => ({ ...s, patientOrg: '' })) : undefined}
-                clearLabel={t('common.clear')}
-              >
+              <SelectTrigger size="sm">
                 <SelectValue placeholder={t('patient.org_placeholder')} />
               </SelectTrigger>
               <SelectContent>

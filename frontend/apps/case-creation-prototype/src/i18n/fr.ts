@@ -1,9 +1,6 @@
 // French is the default language of the form. Every key here has a twin in en.ts.
 // Wording is the wireframe's, unchanged, unless a note says otherwise.
 const fr = {
-  common: {
-    clear: 'Effacer',
-  },
   page: {
     title: 'Nouveau cas',
     prototype_banner: 'Prototype de design — pas du code de production',
@@ -25,6 +22,7 @@ const fr = {
     prenatal: 'Cas prénatal',
     study: 'Étude de recherche (consentement obtenu)',
     study_placeholder: 'Sélectionner une étude…',
+    clear_selection: '↺ Effacer la sélection',
     prescriber_is_me: 'Je suis médecin prescripteur ou responsable',
     prescriber: 'Qui demande cette analyse',
     prescriber_placeholder: 'Nom du médecin',
@@ -71,8 +69,10 @@ const fr = {
   signs: {
     instruction: 'Sélectionnez au moins un phénotype OBSERVÉ avec son âge d’apparition',
     search_placeholder: 'Rechercher par nom de phénotype ou code HP',
+    clear_search: 'Effacer la recherche',
     search_min: 'Saisissez au moins 2 caractères.',
     no_results: 'Aucun terme correspondant.',
+    more_results: 'Affichage des {{count}} premiers — précisez votre recherche.',
     browse: 'Parcourir l’arbre HPO',
     observed: 'Phénotypes observés',
     suggestions: 'Suggestions pour cette analyse',

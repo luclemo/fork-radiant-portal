@@ -82,10 +82,6 @@ export interface MultipleSelectorProps {
    * collapsing the overflow into a `+N` badge on a single line.
    * @default false
    */
-  /** Height, as on Input and Select. @default 'default' */
-  size?: 'default' | 'sm';
-  /** Show a chevron on the right, as a Select does. @default false */
-  chevron?: boolean;
   multiline?: boolean;
 
   /**
