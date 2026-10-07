@@ -10,8 +10,10 @@ const fr = {
     patient: 'Patient (Proband)',
     patient_prenatal: 'Patient (Proband, mère)',
     clinical_signs: 'Signes cliniques',
-    other_clinical: 'Autres informations cliniques (facultatives)',
+    other_clinical: 'Observations cliniques',
     family: 'Famille',
+    optional_other_clinical: '(facultatif)',
+    optional_family: '(facultatif)',
     placeholder: 'Section à venir',
   },
   analysis: {

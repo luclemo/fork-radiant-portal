@@ -60,7 +60,7 @@ Groups are told apart by a hairline with its label on the left; with no not-obse
 is bare and closes the section. Rhythm: 24 px between blocks, 8 px under a separator, 2 px between
 rows.
 
-**4 · Autres informations cliniques (facultatives)** — Consanguinité | Ethnicité(s) (chips);
+**4 · Observations cliniques (facultatif)** — Consanguinité | Ethnicité(s) (chips);
 Indication principale (MONDO typeahead + browse); Note clinique. **« Note clinique » keeps its
 label** (2026-09-29) even though it now also carries the diagnosis hypothesis (see Backend).
 

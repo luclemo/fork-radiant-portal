@@ -16,7 +16,7 @@ Status: **needs design** → **designed** (Figma link) → **stand-in built** �
 | Segmented control (empty start, clearable) | Sexe (§2, fetal, §5), Consanguinité (§4) | partly covered | — | `ToggleButtonGroup` must start with a value. The DS `ToggleGroup` (shadcn, has a story) can start empty, so §2 uses it: outline, spacing 0, its own colours. Gap: a tooltip can't wrap an item (it takes over the item's selected state), so the tooltip sits on the label inside. Required groups ignore the click that would empty them. Also used for Statut (§5, initials A · NA · I). |
 | Tree browser with checkboxes | HPO browser (§3), MONDO browser (§4) | needs design · stand-in built | — | No tree component at all. Stand-ins: `src/stand-ins/hpo-browser.tsx` (DS Dialog + Checkbox, chevron buttons, lazy rows, search with the path to each match) and `mondo-browser.tsx` (flat, single pick), sharing `browser-shell.tsx`. Needs: indent, caret, a node that sits under several parents, a locked row, and a single-pick mode. |
 | Pedigree | Rail | designed · stand-in built | [Pedigree component set](https://www.figma.com/design/Y0l9SoMCYlTQZxce3NzZiK/Radiant-ui-kit---shadcn---January-2025?node-id=24830-9173) | Stand-ins: `src/rail/pedigree.tsx` (lines and layout, which are new) and `src/stand-ins/pedigree-proband-symbol.tsx` (the Figma proband symbol, traced from its vectors). Relatives use the code icons (`base/icons/pedigree-*`). See « Pedigree: Figma and code icons » below. |
-| Step Count | Section header number (§1–§5) | designed · stand-in built | [Components section](https://www.figma.com/design/G7MHa8tTIkNJF5baAZU4AD/Case-Create?node-id=12035-18322) | 28 px circle, muted fill, 1 px border, mono number 14 px medium. Figma uses Geist Mono, which the app doesn't ship: the stand-in uses `font-mono`. Stand-in: `src/stand-ins/step-count.tsx`. Add to Storybook. |
+| Step Count | Section header number (§1–§5) | designed · stand-in built | [Components section](https://www.figma.com/design/G7MHa8tTIkNJF5baAZU4AD/Case-Create?node-id=12035-18322) | 24 px circle, muted fill, 1 px border, mono number 14 px medium. Figma uses Geist Mono, which the app doesn't ship: the stand-in uses `font-mono`. Stand-in: `src/stand-ins/step-count.tsx`. Add to Storybook. |
 | Anthology Code | Ids in lists: HP:…, MONDO:… (§3, §4, browsers) | designed · stand-in built | [Components section](https://www.figma.com/design/G7MHa8tTIkNJF5baAZU4AD/Case-Create?node-id=12035-18322) | Mono 12/16, muted text. Stand-in: `src/stand-ins/anthology-code.tsx`, used in §3, §4 and both browsers. Same Geist Mono caveat as Step Count. Add to Storybook. |
 
 ## Accordion as section card
@@ -26,10 +26,10 @@ following Lucas's Figma « Accordion / AccordionItem » ([node](https://www.figm
 No change to the component. Overrides, all in `SectionCard` (`src/case-creation-page.tsx`):
 
 - Item: `border rounded-lg p-6 shadow-xs`, replacing the DS `border-b`.
-- Trigger: `py-0`. The DS adds 8 px, which would make the header 44 px instead of Figma's 28.
+- Trigger: `py-0`. The DS adds 8 px, which would make the header 40 px instead of Figma's 24.
 - Title: 16/24 semibold, 12 px after the step circle.
 - Body: `forceMount`, so a closed section stays mounted (keeps local state). Cost: no close animation.
-  Divider 24 px under the header, 24 px above the content, **16 px below it** (as drawn in Figma).
+  Divider 16 px under the header, 24 px above the content, **no padding below it** (as drawn in Figma).
 - Not in the DS: a way to open items from outside is just the controlled `value`; nothing to add.
 
 ## Changes to existing components

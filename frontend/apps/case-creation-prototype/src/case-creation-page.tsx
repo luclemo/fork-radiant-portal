@@ -22,9 +22,9 @@ const ALL_SECTIONS: SectionId[] = ['analysis', 'patient', 'clinical_signs', 'oth
 /**
  * One form section: a DS accordion item drawn as a card (Figma « Accordion / AccordionItem »,
  * chevron right). Overrides on the DS parts, all from the Figma spec:
- * - item: card chrome (border, 8 px radius, 24 px padding, 24 px between header and body);
- * - trigger: `py-0` (the DS adds 8 px), so the header is the 28 px of its step circle;
- * - body: a divider 24 px under the header, 24 px above the content, 16 px below it.
+ * - item: card chrome (border, 8 px radius, 24 px padding);
+ * - trigger: `py-0` (the DS adds 8 px), so the header is the 24 px of its step circle;
+ * - body: a divider 16 px under the header, 24 px above the content, none below it.
  * The body stays mounted when closed (`forceMount`), so a section keeps its local state — an open
  * search, a typed-but-unpicked term — and the page can still find fields inside it.
  */
@@ -32,11 +32,14 @@ function SectionCard({
   id,
   index,
   titleKey,
+  optional,
   children,
 }: {
   id: SectionId;
   index: number;
   titleKey: TitleKey;
+  /** Adds the muted « (optional) » tag after the title. */
+  optional?: boolean;
   children: ReactNode;
 }) {
   const { t } = useCaseCreationT();
@@ -51,10 +54,13 @@ function SectionCard({
       <AccordionTrigger chevronPlacement="right" className="py-0">
         <span className="flex items-center gap-3">
           <StepCount value={index} />
-          <span className="text-base font-semibold">{t(`section.${titleKey}`)}</span>
+          <span className="flex items-baseline gap-2 text-base">
+            <span className="font-semibold">{t(`section.${titleKey}`)}</span>
+            {optional && <span className="text-muted-foreground">{t(`section.optional_${id}`)}</span>}
+          </span>
         </span>
       </AccordionTrigger>
-      <AccordionContent forceMount className="mt-6 border-t pt-6 pb-4">
+      <AccordionContent forceMount className="mt-4 border-t pt-6 pb-0">
         {children}
       </AccordionContent>
     </AccordionItem>
@@ -136,10 +142,10 @@ function CaseCreationPage() {
             <SectionCard id="clinical_signs" index={3} titleKey="clinical_signs">
               <ClinicalSignsSection state={state} update={update} />
             </SectionCard>
-            <SectionCard id="other_clinical" index={4} titleKey="other_clinical">
+            <SectionCard id="other_clinical" index={4} titleKey="other_clinical" optional>
               <OtherClinicalSection state={state} update={update} />
             </SectionCard>
-            <SectionCard id="family" index={5} titleKey="family">
+            <SectionCard id="family" index={5} titleKey="family" optional>
               <FamilySection state={state} update={update} showErrors={showFamilyErrors} />
             </SectionCard>
           </Accordion>

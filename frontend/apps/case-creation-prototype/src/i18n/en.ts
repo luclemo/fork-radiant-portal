@@ -11,8 +11,11 @@ const en: typeof fr = {
     patient: 'Patient (Proband)',
     patient_prenatal: 'Patient (Proband, mother)',
     clinical_signs: 'Clinical signs',
-    other_clinical: 'Other clinical information (optional)',
+    other_clinical: 'Clinical observations',
     family: 'Family',
+    // The muted tag after the title of an optional section.
+    optional_other_clinical: '(optional)',
+    optional_family: '(optional)',
     placeholder: 'Section coming soon',
   },
   analysis: {
